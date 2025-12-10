@@ -459,49 +459,6 @@
             background: rgba(var(--primary-rgb), 0.05);
         }
 
-        /* CHARTS (simple bar chart using divs) */
-        .chart-bar {
-            display: flex;
-            align-items: flex-end;
-            gap: 16px;
-            margin-bottom: 24px;
-            height: 200px;
-            padding: 16px 0;
-        }
-
-        .bar-item {
-            flex: 1;
-            text-align: center;
-        }
-
-        .bar {
-            background: linear-gradient(180deg, var(--primary), var(--secondary));
-            border-radius: 8px 8px 0 0;
-            margin-bottom: 8px;
-            min-height: 20px;
-            transition: all 0.3s;
-            position: relative;
-        }
-
-        .bar:hover {
-            opacity: 0.8;
-        }
-
-        .bar-value {
-            font-weight: 600;
-            font-size: 12px;
-            position: absolute;
-            top: -20px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: var(--primary);
-        }
-
-        .bar-label {
-            font-size: 12px;
-            color: var(--text-light);
-        }
-
         /* SETTINGS */
         .color-picker-grid {
             display: grid;
@@ -718,6 +675,14 @@
         </div>
     </div>
 
+    <!-- REMINDER BANNER -->
+    <div id="reminderBanner" class="card" style="margin: 8px 16px; border-left: 4px solid var(--accent); display: none;">
+        <div style="font-size: 14px;">
+            🔔 Don’t forget to log today’s expenses.
+            <button class="btn btn-small btn-outline" style="float: right;" onclick="dismissReminder()">Got it</button>
+        </div>
+    </div>
+
     <!-- NAVIGATION -->
     <div class="container" style="padding-top: 0;">
         <div class="nav">
@@ -739,8 +704,8 @@
                             <label class="form-label">Person *</label>
                             <select class="form-select" id="expensePerson" required>
                                 <option value="">Select person</option>
-                                <option value="Husband">👨 Husband</option>
-                                <option value="Wife">👩 Wife</option>
+                                <option value="Person1">👤 Person 1</option>
+                                <option value="Person2">👤 Person 2</option>
                                 <option value="Both">👫 Both (Shared)</option>
                             </select>
                         </div>
@@ -769,6 +734,7 @@
                                 <option value="Entertainment">🎬 Entertainment</option>
                                 <option value="Medical">⚕️ Medical</option>
                                 <option value="Education">📚 Education</option>
+                                <option value="Investments">📈 Investments</option>
                                 <option value="Others">📌 Others</option>
                             </select>
                         </div>
@@ -785,13 +751,6 @@
                                 <option value="Netbanking">🏦 Netbanking</option>
                                 <option value="Wallet">👛 Wallet</option>
                                 <option value="Other">📋 Other</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Type *</label>
-                            <select class="form-select" id="expenseType" required>
-                                <option value="Personal">Personal</option>
-                                <option value="Shared">Shared</option>
                             </select>
                         </div>
                     </div>
@@ -840,12 +799,12 @@
 
             <div class="summary-grid">
                 <div class="summary-card">
-                    <div class="summary-label">Husband Spent</div>
+                    <div class="summary-label" id="person1Label">Person 1 Spent</div>
                     <div class="summary-amount" id="husbandSpend">₹0</div>
                     <div class="summary-person">Including shared (50%)</div>
                 </div>
                 <div class="summary-card">
-                    <div class="summary-label">Wife Spent</div>
+                    <div class="summary-label" id="person2Label">Person 2 Spent</div>
                     <div class="summary-amount" id="wifeSpend">₹0</div>
                     <div class="summary-person">Including shared (50%)</div>
                 </div>
@@ -898,14 +857,26 @@
                 <h3>Monthly Income (Optional)</h3>
                 <div class="form-row">
                     <div class="form-group">
-                        <label class="form-label">Husband Income (₹)</label>
+                        <label class="form-label">Person 1 Income (₹)</label>
                         <input type="number" class="form-input" id="husbandIncome" placeholder="0" step="0.01" min="0" oninput="updateOverview()">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Wife Income (₹)</label>
+                        <label class="form-label">Person 2 Income (₹)</label>
                         <input type="number" class="form-input" id="wifeIncome" placeholder="0" step="0.01" min="0" oninput="updateOverview()">
                     </div>
                 </div>
+            </div>
+
+            <div class="card">
+                <h3>Monthly Budget</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Total Monthly Budget (₹)</label>
+                        <input type="number" class="form-input" id="monthlyBudget" placeholder="0" step="0.01" min="0" oninput="saveBudgetAndUpdate()">
+                    </div>
+                </div>
+                <div class="summary-label" id="budgetStatusText" style="margin-top: 8px;"></div>
+                <div class="summary-label" id="budgetReminderText" style="margin-top: 4px; color: var(--danger);"></div>
             </div>
 
             <div class="summary-grid">
@@ -939,18 +910,18 @@
                 <h3>Spending Distribution</h3>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px;">
                     <div>
-                        <div style="text-align: center; font-size: 12px; color: var(--text-light); margin-bottom: 8px;">Husband vs Wife</div>
+                        <div style="text-align: center; font-size: 12px; color: var(--text-light); margin-bottom: 8px;">Person 1 vs Person 2</div>
                         <div style="width: 120px; height: 120px; border-radius: 50%; background: conic-gradient(var(--primary) 0deg 180deg, var(--secondary) 180deg 360deg); margin: 0 auto;"></div>
                     </div>
                     <div>
                         <div style="margin-bottom: 12px;">
                             <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
                                 <div style="width: 16px; height: 16px; background: var(--primary); border-radius: 3px;"></div>
-                                <span>Husband: <strong id="husbandSharePercent">0%</strong></span>
+                                <span id="person1ShareLabel">Person 1: <strong id="husbandSharePercent">0%</strong></span>
                             </div>
                             <div style="display: flex; gap: 8px; align-items: center;">
                                 <div style="width: 16px; height: 16px; background: var(--secondary); border-radius: 3px;"></div>
-                                <span>Wife: <strong id="wifeSharePercent">0%</strong></span>
+                                <span id="person2ShareLabel">Person 2: <strong id="wifeSharePercent">0%</strong></span>
                             </div>
                         </div>
                     </div>
@@ -1042,6 +1013,23 @@
             </div>
 
             <div class="card">
+                <h3>Person Names</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Person 1 Name</label>
+                        <input type="text" class="form-input" id="person1NameInput" placeholder="Person 1" oninput="updatePersonNames()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Person 2 Name</label>
+                        <input type="text" class="form-input" id="person2NameInput" placeholder="Person 2" oninput="updatePersonNames()">
+                    </div>
+                </div>
+                <p style="font-size: 12px; color: var(--text-light); margin-top: 4px;">
+                    These names will be used everywhere instead of fixed labels.
+                </p>
+            </div>
+
+            <div class="card">
                 <h3>Data Management</h3>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                     <button class="btn btn-secondary" onclick="exportData()" style="width: 100%;">💾 Export Data</button>
@@ -1086,11 +1074,16 @@
                 fontSize: 'medium',
                 coverPhotoData: null,
                 headerTitle: 'Couple Expense Tracker',
-                headerSubtitle: 'Manage your finances together'
+                headerSubtitle: 'Manage your finances together',
+                person1Name: 'Person 1',
+                person2Name: 'Person 2'
             },
             dateFilter: 'month',
-            customDateRange: null
+            customDateRange: null,
+            monthlyBudget: 0
         };
+
+        let editingExpenseId = null;
 
         const colorPresets = [
             '#e91e63', '#f44336', '#ff6f00', '#ffc107', '#4caf50', '#2196f3',
@@ -1104,8 +1097,10 @@
             renderColorPickers();
             applyTheme();
             applyFontSettings();
+            refreshPersonLabels();
             updateSummaries();
             updateOverview();
+            checkReminderBanner();
         }
 
         // ==================== SECTION SWITCHING ====================
@@ -1123,7 +1118,7 @@
             if (sectionId === 'overview') updateOverview();
         }
 
-        // ==================== ADD EXPENSE ====================
+        // ==================== ADD / EDIT EXPENSE ====================
         function addExpense(e) {
             e.preventDefault();
 
@@ -1132,30 +1127,70 @@
             const amount = parseFloat(document.getElementById('expenseAmount').value);
             const category = document.getElementById('expenseCategory').value;
             const paymentMode = document.getElementById('expensePaymentMode').value;
-            const type = document.getElementById('expenseType').value;
             const note = document.getElementById('expenseNote').value;
 
-            if (!person || !date || !amount || !category || !paymentMode || !type) {
+            if (!person || !date || !amount || !category || !paymentMode) {
                 showToast('Please fill all required fields', 'error');
                 return;
             }
 
-            const expense = {
-                id: Date.now(),
-                person,
-                date,
-                amount,
-                category,
-                paymentMode,
-                type,
-                note
-            };
+            if (editingExpenseId !== null) {
+                const idx = appState.expenses.findIndex(e => e.id === editingExpenseId);
+                if (idx !== -1) {
+                    appState.expenses[idx] = {
+                        ...appState.expenses[idx],
+                        person,
+                        date,
+                        amount,
+                        category,
+                        paymentMode,
+                        note
+                    };
+                }
+                showToast('✅ Expense updated successfully!');
+                clearEditMode();
+            } else {
+                const expense = {
+                    id: Date.now(),
+                    person,
+                    date,
+                    amount,
+                    category,
+                    paymentMode,
+                    note
+                };
+                appState.expenses.push(expense);
+                showToast('✅ Expense added successfully!');
+            }
 
-            appState.expenses.push(expense);
             saveToStorage();
             resetExpenseForm();
-            showToast('✅ Expense added successfully!');
             updateSummaries();
+            updateOverview();
+            checkReminderBanner();
+        }
+
+        function startEditExpense(id) {
+            const exp = appState.expenses.find(e => e.id === id);
+            if (!exp) return;
+
+            editingExpenseId = id;
+            document.getElementById('expensePerson').value = exp.person;
+            document.getElementById('expenseDate').value = exp.date;
+            document.getElementById('expenseAmount').value = exp.amount;
+            document.getElementById('expenseCategory').value = exp.category;
+            document.getElementById('expensePaymentMode').value = exp.paymentMode;
+            document.getElementById('expenseNote').value = exp.note || '';
+
+            switchSection('add-expense');
+            const submitBtn = document.querySelector('#add-expense form button[type="submit"]');
+            if (submitBtn) submitBtn.textContent = 'Update Expense';
+        }
+
+        function clearEditMode() {
+            editingExpenseId = null;
+            const submitBtn = document.querySelector('#add-expense form button[type="submit"]');
+            if (submitBtn) submitBtn.textContent = 'Add Expense';
         }
 
         function resetExpenseForm() {
@@ -1163,9 +1198,9 @@
             document.getElementById('expenseAmount').value = '';
             document.getElementById('expenseCategory').value = '';
             document.getElementById('expensePaymentMode').value = '';
-            document.getElementById('expenseType').value = 'Personal';
             document.getElementById('expenseNote').value = '';
             setDefaultDate();
+            clearEditMode();
         }
 
         // ==================== FILTERING ====================
@@ -1235,20 +1270,20 @@
         function updateSummaries() {
             const filtered = getFilteredExpenses();
 
-            let husbandTotal = 0, wifeTotal = 0, sharedTotal = 0;
+            let p1Total = 0, p2Total = 0, sharedTotal = 0;
 
             filtered.forEach(exp => {
-                if (exp.person === 'Husband') husbandTotal += exp.amount;
-                else if (exp.person === 'Wife') wifeTotal += exp.amount;
+                if (exp.person === 'Person1') p1Total += exp.amount;
+                else if (exp.person === 'Person2') p2Total += exp.amount;
                 else if (exp.person === 'Both') sharedTotal += exp.amount;
             });
 
-            const husbandWithShared = husbandTotal + (sharedTotal / 2);
-            const wifeWithShared = wifeTotal + (sharedTotal / 2);
-            const grandTotal = husbandTotal + wifeTotal + sharedTotal;
+            const p1WithShared = p1Total + (sharedTotal / 2);
+            const p2WithShared = p2Total + (sharedTotal / 2);
+            const grandTotal = p1Total + p2Total + sharedTotal;
 
-            document.getElementById('husbandSpend').textContent = formatCurrency(husbandWithShared);
-            document.getElementById('wifeSpend').textContent = formatCurrency(wifeWithShared);
+            document.getElementById('husbandSpend').textContent = formatCurrency(p1WithShared);
+            document.getElementById('wifeSpend').textContent = formatCurrency(p2WithShared);
             document.getElementById('sharedExpense').textContent = formatCurrency(sharedTotal);
             document.getElementById('grandTotal').textContent = formatCurrency(grandTotal);
 
@@ -1266,7 +1301,7 @@
             categoryTableBody.innerHTML = '';
 
             Object.entries(categoryMap).forEach(([cat, data]) => {
-                const percent = ((data.amount / grandTotal) * 100).toFixed(1);
+                const percent = grandTotal > 0 ? ((data.amount / grandTotal) * 100).toFixed(1) : 0;
                 const row = `<tr>
                     <td>${cat}</td>
                     <td>${formatCurrency(data.amount)}</td>
@@ -1281,17 +1316,26 @@
             expenseList.innerHTML = '';
             const sorted = [...filtered].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 10);
 
+            const p1Name = appState.settings.person1Name || 'Person 1';
+            const p2Name = appState.settings.person2Name || 'Person 2';
+
             sorted.forEach(exp => {
-                const effectivePerson = exp.person === 'Both' ? '👫 Shared' : exp.person;
+                let effectivePerson;
+                if (exp.person === 'Both') effectivePerson = '👫 Shared';
+                else if (exp.person === 'Person1') effectivePerson = p1Name;
+                else if (exp.person === 'Person2') effectivePerson = p2Name;
+                else effectivePerson = exp.person;
+
                 const item = `<div class="expense-item">
                     <div class="expense-item-left">
                         <div class="expense-date">${new Date(exp.date).toLocaleDateString('en-IN')}</div>
                         <div class="expense-description">${exp.note || 'No description'}</div>
                         <span class="expense-category">${exp.category}</span>
                     </div>
-                    <div>
+                    <div style="text-align: right;">
                         <div class="expense-amount">${formatCurrency(exp.amount)}</div>
                         <div class="expense-person">${effectivePerson}</div>
+                        <button class="btn btn-small btn-outline" style="margin-top: 6px;" onclick="startEditExpense(${exp.id})">Edit</button>
                     </div>
                 </div>`;
                 expenseList.innerHTML += item;
@@ -1303,6 +1347,13 @@
         }
 
         // ==================== OVERVIEW ====================
+        function saveBudgetAndUpdate() {
+            const value = parseFloat(document.getElementById('monthlyBudget').value) || 0;
+            appState.monthlyBudget = value;
+            saveToStorage();
+            updateOverview();
+        }
+
         function updateOverview() {
             const husbandIncome = parseFloat(document.getElementById('husbandIncome').value) || 0;
             const wifeIncome = parseFloat(document.getElementById('wifeIncome').value) || 0;
@@ -1322,36 +1373,59 @@
             document.getElementById('estimatedSavings').textContent = formatCurrency(savings);
             document.getElementById('savingsPercent').textContent = savingsPercent + '%';
 
+            // Budget status & alert
+            const budget = appState.monthlyBudget || 0;
+            if (document.getElementById('budgetStatusText')) {
+                if (budget > 0) {
+                    const usedPercent = ((monthlySpend / budget) * 100).toFixed(1);
+                    document.getElementById('budgetStatusText').textContent =
+                        `Budget used: ${usedPercent}% of ${formatCurrency(budget)}`;
+                    if (monthlySpend > budget) {
+                        document.getElementById('budgetReminderText').textContent =
+                            '⚠️ You have crossed your monthly budget.';
+                        showToast('⚠️ Monthly budget exceeded!', 'error');
+                    } else if (monthlySpend > budget * 0.8) {
+                        document.getElementById('budgetReminderText').textContent =
+                            '⌛ You are above 80% of your budget.';
+                    } else {
+                        document.getElementById('budgetReminderText').textContent = '';
+                    }
+                } else {
+                    document.getElementById('budgetStatusText').textContent =
+                        'Set a monthly budget to track against.';
+                    document.getElementById('budgetReminderText').textContent = '';
+                }
+            }
+
             // Spending distribution
-            let husbandSpend = 0, wifeSpend = 0, sharedSpend = 0;
+            let p1Spend = 0, p2Spend = 0, sharedSpend = 0;
             monthExpenses.forEach(exp => {
-                if (exp.person === 'Husband') husbandSpend += exp.amount;
-                else if (exp.person === 'Wife') wifeSpend += exp.amount;
+                if (exp.person === 'Person1') p1Spend += exp.amount;
+                else if (exp.person === 'Person2') p2Spend += exp.amount;
                 else if (exp.person === 'Both') sharedSpend += exp.amount;
             });
 
-            const husbandEffective = husbandSpend + (sharedSpend / 2);
-            const wifeEffective = wifeSpend + (sharedSpend / 2);
-            const totalEffective = husbandEffective + wifeEffective;
+            const p1Effective = p1Spend + (sharedSpend / 2);
+            const p2Effective = p2Spend + (sharedSpend / 2);
+            const totalEffective = p1Effective + p2Effective;
 
-            const husbandPct = totalEffective > 0 ? ((husbandEffective / totalEffective) * 100).toFixed(0) : 0;
-            const wifePct = totalEffective > 0 ? ((wifeEffective / totalEffective) * 100).toFixed(0) : 0;
+            const p1Pct = totalEffective > 0 ? ((p1Effective / totalEffective) * 100).toFixed(0) : 0;
+            const p2Pct = totalEffective > 0 ? ((p2Effective / totalEffective) * 100).toFixed(0) : 0;
 
-            document.getElementById('husbandSharePercent').textContent = husbandPct + '%';
-            document.getElementById('wifeSharePercent').textContent = wifePct + '%';
+            document.getElementById('husbandSharePercent').textContent = p1Pct + '%';
+            document.getElementById('wifeSharePercent').textContent = p2Pct + '%';
 
-            generateInsights(husbandSpend, wifeSpend, sharedSpend, monthlySpend, combinedIncome);
+            generateInsights(p1Spend, p2Spend, sharedSpend, monthlySpend, combinedIncome);
         }
 
-        function generateInsights(husbandSpend, wifeSpend, sharedSpend, totalSpend, income) {
+        function generateInsights(p1Spend, p2Spend, sharedSpend, totalSpend, income) {
             const insights = [];
 
-            if (sharedSpend > 0) {
+            if (sharedSpend > 0 && totalSpend > 0) {
                 const sharedPct = ((sharedSpend / totalSpend) * 100).toFixed(0);
                 insights.push(`💑 Shared expenses are <strong>${sharedPct}%</strong> of your total spending.`);
             }
 
-            // Most spent category
             const categoryMap = {};
             getFilteredExpenses().forEach(exp => {
                 if (!categoryMap[exp.category]) categoryMap[exp.category] = 0;
@@ -1366,7 +1440,6 @@
             if (income > 0) {
                 const spendingRatio = ((totalSpend / income) * 100).toFixed(0);
                 insights.push(`💰 You've spent <strong>${spendingRatio}%</strong> of your combined income this month.`);
-
                 if (spendingRatio < 50) {
                     insights.push(`🎉 Great job! You're saving more than 50% of your income!`);
                 } else if (spendingRatio > 80) {
@@ -1374,27 +1447,55 @@
                 }
             }
 
-            const spendDifference = Math.abs(husbandSpend - wifeSpend);
+            const spendDifference = Math.abs(p1Spend - p2Spend);
             if (spendDifference > 0) {
-                const spender = husbandSpend > wifeSpend ? '👨 Husband' : '👩 Wife';
-                insights.push(`📊 ${spender} has spent ${formatCurrency(spendDifference)} more than their partner.`);
+                const p1Name = appState.settings.person1Name || 'Person 1';
+                const p2Name = appState.settings.person2Name || 'Person 2';
+                const spenderName = p1Spend > p2Spend ? p1Name : p2Name;
+                insights.push(`📊 ${spenderName} has spent ${formatCurrency(spendDifference)} more than their partner.`);
             }
 
             const insightContainer = document.getElementById('insightContainer');
-            insightContainer.innerHTML = insights.map(insight => `<div class="insight">${insight}</div>`).join('');
+            if (insights.length === 0) {
+                insightContainer.innerHTML = '<p style="color: var(--text-light);">No data yet for insights</p>';
+            } else {
+                insightContainer.innerHTML = insights.map(insight => `<div class="insight">${insight}</div>`).join('');
+            }
+        }
+
+        // ==================== REMINDER BANNER ====================
+        function checkReminderBanner() {
+            const today = new Date().toISOString().split('T')[0];
+            const hasTodayExpense = appState.expenses.some(exp => exp.date === today);
+            const dismissed = localStorage.getItem('reminderDismissed') === today;
+
+            const banner = document.getElementById('reminderBanner');
+            if (!banner) return;
+
+            if (!hasTodayExpense && !dismissed) {
+                banner.style.display = 'block';
+            } else {
+                banner.style.display = 'none';
+            }
+        }
+
+        function dismissReminder() {
+            const today = new Date().toISOString().split('T')[0];
+            localStorage.setItem('reminderDismissed', today);
+            const banner = document.getElementById('reminderBanner');
+            if (banner) banner.style.display = 'none';
         }
 
         // ==================== EXPORT / IMPORT ====================
         function exportToCSV() {
             const filtered = getFilteredExpenses();
-            let csv = 'Date,Person,Category,Type,Amount,Payment Mode,Note\n';
+            let csv = 'Date,Person,Category,Amount,Payment Mode,Note\n';
 
             filtered.forEach(exp => {
                 const row = [
                     exp.date,
                     exp.person,
                     exp.category,
-                    exp.type,
                     exp.amount,
                     exp.paymentMode,
                     `"${exp.note || ''}"`
@@ -1440,9 +1541,11 @@
                     saveToStorage();
                     applyTheme();
                     applyFontSettings();
+                    refreshPersonLabels();
                     showToast('✅ Data imported successfully!');
                     updateSummaries();
                     updateOverview();
+                    checkReminderBanner();
                 } catch (err) {
                     showToast('❌ Invalid file format', 'error');
                 }
@@ -1452,24 +1555,33 @@
 
         function clearAllData() {
             if (confirm('⚠️ This will delete ALL expenses and settings. Are you sure?')) {
-                appState.expenses = [];
-                appState.settings = {
-                    theme: 'light',
-                    primaryColor: '#e91e63',
-                    secondaryColor: '#2196f3',
-                    accentColor: '#ff6f00',
-                    fontStyle: 'clean',
-                    fontSize: 'medium',
-                    coverPhotoData: null,
-                    headerTitle: 'Couple Expense Tracker',
-                    headerSubtitle: 'Manage your finances together'
+                appState = {
+                    expenses: [],
+                    settings: {
+                        theme: 'light',
+                        primaryColor: '#e91e63',
+                        secondaryColor: '#2196f3',
+                        accentColor: '#ff6f00',
+                        fontStyle: 'clean',
+                        fontSize: 'medium',
+                        coverPhotoData: null,
+                        headerTitle: 'Couple Expense Tracker',
+                        headerSubtitle: 'Manage your finances together',
+                        person1Name: 'Person 1',
+                        person2Name: 'Person 2'
+                    },
+                    dateFilter: 'month',
+                    customDateRange: null,
+                    monthlyBudget: 0
                 };
                 saveToStorage();
                 applyTheme();
                 applyFontSettings();
+                refreshPersonLabels();
                 showToast('🗑️ All data cleared');
                 updateSummaries();
                 updateOverview();
+                checkReminderBanner();
             }
         }
 
@@ -1563,6 +1675,9 @@
                 document.getElementById('header').style.backgroundImage = `url('${appState.settings.coverPhotoData}')`;
                 document.getElementById('coverPhotoPreview').src = appState.settings.coverPhotoData;
                 document.getElementById('coverPhotoPreview').style.display = 'block';
+            } else {
+                document.getElementById('header').style.backgroundImage = 'linear-gradient(135deg, var(--primary), var(--secondary))';
+                document.getElementById('coverPhotoPreview').style.display = 'none';
             }
         }
 
@@ -1586,7 +1701,7 @@
             if (confirm('Remove the header photo?')) {
                 appState.settings.coverPhotoData = null;
                 saveToStorage();
-                document.getElementById('header').style.backgroundImage = 'none';
+                document.getElementById('header').style.backgroundImage = 'linear-gradient(135deg, var(--primary), var(--secondary))';
                 document.getElementById('coverPhotoPreview').style.display = 'none';
                 showToast('✅ Header photo removed');
             }
@@ -1605,6 +1720,43 @@
             saveToStorage();
         }
 
+        function updatePersonNames() {
+            const p1 = document.getElementById('person1NameInput').value || 'Person 1';
+            const p2 = document.getElementById('person2NameInput').value || 'Person 2';
+
+            appState.settings.person1Name = p1;
+            appState.settings.person2Name = p2;
+            saveToStorage();
+            refreshPersonLabels();
+            updateSummaries();
+            updateOverview();
+        }
+
+        function refreshPersonLabels() {
+            const p1 = appState.settings.person1Name || 'Person 1';
+            const p2 = appState.settings.person2Name || 'Person 2';
+
+            const person1Label = document.getElementById('person1Label');
+            const person2Label = document.getElementById('person2Label');
+            if (person1Label) person1Label.textContent = `${p1} Spent`;
+            if (person2Label) person2Label.textContent = `${p2} Spent`;
+
+            const personSelect = document.getElementById('expensePerson');
+            if (personSelect) {
+                personSelect.innerHTML = `
+                    <option value="">Select person</option>
+                    <option value="Person1">👤 ${p1}</option>
+                    <option value="Person2">👤 ${p2}</option>
+                    <option value="Both">👫 Both (Shared)</option>
+                `;
+            }
+
+            const share1 = document.getElementById('person1ShareLabel');
+            const share2 = document.getElementById('person2ShareLabel');
+            if (share1) share1.innerHTML = `${p1}: <strong id="husbandSharePercent">${document.getElementById('husbandSharePercent').textContent}</strong>`;
+            if (share2) share2.innerHTML = `${p2}: <strong id="wifeSharePercent">${document.getElementById('wifeSharePercent').textContent}</strong>`;
+        }
+
         // ==================== STORAGE ====================
         function saveToStorage() {
             localStorage.setItem('coupleExpenseTrackerApp', JSON.stringify(appState));
@@ -1618,6 +1770,16 @@
 
             document.getElementById('headerTitle').value = appState.settings.headerTitle;
             document.getElementById('headerSubtitleText').value = appState.settings.headerSubtitle;
+
+            if (document.getElementById('person1NameInput')) {
+                document.getElementById('person1NameInput').value = appState.settings.person1Name || 'Person 1';
+            }
+            if (document.getElementById('person2NameInput')) {
+                document.getElementById('person2NameInput').value = appState.settings.person2Name || 'Person 2';
+            }
+            if (document.getElementById('monthlyBudget')) {
+                document.getElementById('monthlyBudget').value = appState.monthlyBudget || 0;
+            }
         }
 
         // ==================== UI HELPERS ====================
