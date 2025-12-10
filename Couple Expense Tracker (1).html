@@ -1,0 +1,1639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Couple Expense Tracker</title>
+    <style>
+        :root {
+            --primary: #e91e63;
+            --secondary: #2196f3;
+            --accent: #ff6f00;
+            --text: #212121;
+            --text-light: #757575;
+            --border: #e0e0e0;
+            --bg: #fafafa;
+            --success: #4caf50;
+            --danger: #f44336;
+            --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --primary-rgb: 233, 30, 99;
+            --secondary-rgb: 33, 150, 243;
+            --accent-rgb: 255, 111, 0;
+        }
+
+        [data-theme="dark"] {
+            --text: #e0e0e0;
+            --text-light: #b0b0b0;
+            --border: #424242;
+            --bg: #121212;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            font-family: var(--font-family);
+            background-color: var(--bg);
+            color: var(--text);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            padding-bottom: 100px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 16px;
+        }
+
+        /* HEADER & NAV */
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 24px 16px;
+            border-radius: 0 0 12px 12px;
+            margin-bottom: 24px;
+            text-align: center;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 0 0 12px 12px;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .nav {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .nav-btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 24px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .nav-btn.active {
+            background: white;
+            color: var(--primary);
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* SECTIONS */
+        .section {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* CARDS */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 0.3s;
+        }
+
+        [data-theme="dark"] .card {
+            background: #1e1e1e;
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .card h3 {
+            margin-bottom: 16px;
+            font-size: 16px;
+            color: var(--primary);
+        }
+
+        /* FORM ELEMENTS */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            font-size: 14px;
+            color: var(--text-light);
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            background-color: var(--bg);
+            color: var(--text);
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        @media (max-width: 600px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* BUTTONS */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: darken-primary;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #1976d2;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: rgba(var(--primary-rgb), 0.1);
+        }
+
+        .btn-small {
+            padding: 8px 12px;
+            font-size: 12px;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #d32f2f;
+        }
+
+        /* TOAST */
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--success);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            animation: slideUp 0.3s;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateX(-50%) translateY(100px); opacity: 0; }
+            to { transform: translateX(-50%) translateY(0); opacity: 1; }
+        }
+
+        .toast.error {
+            background: var(--danger);
+        }
+
+        /* TABS */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            border-bottom: 2px solid var(--border);
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 12px 16px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-light);
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            margin-bottom: -2px;
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* EXPENSE LIST */
+        .expense-list {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .expense-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            background: var(--bg);
+        }
+
+        [data-theme="dark"] .expense-item {
+            background: #2a2a2a;
+        }
+
+        .expense-item-left {
+            flex: 1;
+        }
+
+        .expense-date {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .expense-description {
+            font-weight: 500;
+            margin: 4px 0;
+        }
+
+        .expense-category {
+            font-size: 12px;
+            background: rgba(var(--secondary-rgb), 0.1);
+            color: var(--secondary);
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-top: 4px;
+        }
+
+        .expense-amount {
+            font-weight: 600;
+            font-size: 16px;
+            color: var(--primary);
+            text-align: right;
+        }
+
+        .expense-person {
+            font-size: 12px;
+            color: var(--text-light);
+            text-align: right;
+        }
+
+        /* SUMMARY CARDS */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 600px) {
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="dark"] .summary-card {
+            background: #1e1e1e;
+        }
+
+        .summary-label {
+            font-size: 12px;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .summary-amount {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .summary-person {
+            display: inline-block;
+            padding: 2px 8px;
+            background: rgba(var(--secondary-rgb), 0.1);
+            color: var(--secondary);
+            font-size: 11px;
+            border-radius: 4px;
+            margin-top: 8px;
+        }
+
+        /* TABLE */
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        th {
+            background: rgba(var(--primary-rgb), 0.1);
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--primary);
+            border-bottom: 2px solid var(--border);
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tr:hover {
+            background: rgba(var(--primary-rgb), 0.05);
+        }
+
+        /* CHARTS (simple bar chart using divs) */
+        .chart-bar {
+            display: flex;
+            align-items: flex-end;
+            gap: 16px;
+            margin-bottom: 24px;
+            height: 200px;
+            padding: 16px 0;
+        }
+
+        .bar-item {
+            flex: 1;
+            text-align: center;
+        }
+
+        .bar {
+            background: linear-gradient(180deg, var(--primary), var(--secondary));
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 8px;
+            min-height: 20px;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .bar:hover {
+            opacity: 0.8;
+        }
+
+        .bar-value {
+            font-weight: 600;
+            font-size: 12px;
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--primary);
+        }
+
+        .bar-label {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        /* SETTINGS */
+        .color-picker-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .color-swatch {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            border: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .color-swatch:hover {
+            transform: scale(1.1);
+        }
+
+        .color-swatch.selected {
+            border-color: var(--text);
+            box-shadow: 0 0 0 2px white, 0 0 0 4px var(--text);
+        }
+
+        .font-preview {
+            padding: 16px;
+            background: var(--bg);
+            border-radius: 8px;
+            margin: 16px 0;
+            font-size: 18px;
+        }
+
+        .font-preview.clean {
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .font-preview.playful {
+            font-family: 'Comic Sans MS', 'Trebuchet MS', cursive;
+        }
+
+        .font-preview.serif {
+            font-family: 'Georgia', 'Times New Roman', serif;
+        }
+
+        /* INSIGHT BOX */
+        .insight {
+            background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.1), rgba(var(--secondary-rgb), 0.1));
+            padding: 16px;
+            border-left: 4px solid var(--accent);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* FILTER CONTROLS */
+        .filter-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid var(--border);
+            background: white;
+            border-radius: 24px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        [data-theme="dark"] .filter-btn {
+            background: #2a2a2a;
+        }
+
+        .filter-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* MOBILE BOTTOM NAV */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            z-index: 999;
+            padding: 8px 0;
+        }
+
+        [data-theme="dark"] .bottom-nav {
+            background: #1e1e1e;
+        }
+
+        .bottom-nav-btn {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 12px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 10px;
+            color: var(--text-light);
+            transition: color 0.3s;
+        }
+
+        .bottom-nav-btn.active {
+            color: var(--primary);
+        }
+
+        .bottom-nav-icon {
+            font-size: 24px;
+        }
+
+        /* PHOTO UPLOAD */
+        .photo-preview {
+            width: 100%;
+            max-width: 400px;
+            aspect-ratio: 16/9;
+            border-radius: 8px;
+            object-fit: cover;
+            margin: 12px 0;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary);
+            background: rgba(var(--primary-rgb), 0.05);
+        }
+
+        .upload-area input {
+            display: none;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .nav {
+                justify-content: space-between;
+            }
+
+            .nav-btn {
+                flex: 1;
+                min-width: 80px;
+            }
+        }
+
+        /* DARK MODE */
+        [data-theme="dark"] {
+            --text: #e0e0e0;
+            --text-light: #a0a0a0;
+            --border: #404040;
+            --bg: #121212;
+        }
+
+        [data-theme="dark"] .form-input,
+        [data-theme="dark"] .form-select,
+        [data-theme="dark"] .form-textarea {
+            background-color: #2a2a2a;
+            color: #e0e0e0;
+            border-color: #404040;
+        }
+
+        [data-theme="dark"] .filter-btn {
+            background: #2a2a2a;
+            border-color: #404040;
+            color: #e0e0e0;
+        }
+
+        [data-theme="dark"] .upload-area {
+            border-color: #404040;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <div class="header" id="header">
+        <div class="header-content">
+            <h1>💑 Couple Expense Tracker</h1>
+            <p id="headerSubtitle">Manage your finances together</p>
+        </div>
+    </div>
+
+    <!-- NAVIGATION -->
+    <div class="container" style="padding-top: 0;">
+        <div class="nav">
+            <button class="nav-btn active" onclick="switchSection('add-expense')">➕ Add Expense</button>
+            <button class="nav-btn" onclick="switchSection('summaries')">📊 Summaries</button>
+            <button class="nav-btn" onclick="switchSection('overview')">👩‍❤️‍👨 Overview</button>
+            <button class="nav-btn" onclick="switchSection('settings')">⚙️ Settings</button>
+        </div>
+    </div>
+
+    <!-- ADD EXPENSE SECTION -->
+    <section id="add-expense" class="section active">
+        <div class="container">
+            <div class="card">
+                <h3>Add New Expense</h3>
+                <form onsubmit="addExpense(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Person *</label>
+                            <select class="form-select" id="expensePerson" required>
+                                <option value="">Select person</option>
+                                <option value="Husband">👨 Husband</option>
+                                <option value="Wife">👩 Wife</option>
+                                <option value="Both">👫 Both (Shared)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Date *</label>
+                            <input type="date" class="form-input" id="expenseDate" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Amount (₹) *</label>
+                            <input type="number" class="form-input" id="expenseAmount" placeholder="0.00" step="0.01" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Category *</label>
+                            <select class="form-select" id="expenseCategory" required>
+                                <option value="">Select category</option>
+                                <option value="Groceries">🛒 Groceries</option>
+                                <option value="Rent">🏠 Rent</option>
+                                <option value="Bills">💡 Bills & Utilities</option>
+                                <option value="EMIs">🏦 EMIs & Loans</option>
+                                <option value="Shopping">🛍️ Shopping</option>
+                                <option value="Travel">🚗 Travel</option>
+                                <option value="Food">🍽️ Food & Dining</option>
+                                <option value="Entertainment">🎬 Entertainment</option>
+                                <option value="Medical">⚕️ Medical</option>
+                                <option value="Education">📚 Education</option>
+                                <option value="Others">📌 Others</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Payment Mode *</label>
+                            <select class="form-select" id="expensePaymentMode" required>
+                                <option value="">Select mode</option>
+                                <option value="UPI">📱 UPI</option>
+                                <option value="Card">💳 Card</option>
+                                <option value="Cash">💵 Cash</option>
+                                <option value="Netbanking">🏦 Netbanking</option>
+                                <option value="Wallet">👛 Wallet</option>
+                                <option value="Other">📋 Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Type *</label>
+                            <select class="form-select" id="expenseType" required>
+                                <option value="Personal">Personal</option>
+                                <option value="Shared">Shared</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Description/Note</label>
+                        <input type="text" class="form-input" id="expenseNote" placeholder="e.g., Weekly groceries">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-bottom: 12px;">Add Expense</button>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <button type="button" class="btn btn-outline" onclick="switchSection('summaries')">View Summary</button>
+                        <button type="button" class="btn btn-outline" onclick="resetExpenseForm()">Clear Form</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- SUMMARIES SECTION -->
+    <section id="summaries" class="section">
+        <div class="container">
+            <div class="card">
+                <h3>Filter Expenses</h3>
+                <div class="filter-group">
+                    <button class="filter-btn active" onclick="setDateFilter('today')">Today</button>
+                    <button class="filter-btn" onclick="setDateFilter('week')">This Week</button>
+                    <button class="filter-btn" onclick="setDateFilter('month')">This Month</button>
+                    <button class="filter-btn" onclick="toggleDatePickerFilter()">Custom</button>
+                </div>
+                <div id="customDateFilter" style="display: none; margin-top: 12px;">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">From</label>
+                            <input type="date" class="form-input" id="filterFromDate">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">To</label>
+                            <input type="date" class="form-input" id="filterToDate">
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary btn-small" onclick="applyCustomDateFilter()" style="margin-top: 8px;">Apply Filter</button>
+                </div>
+            </div>
+
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <div class="summary-label">Husband Spent</div>
+                    <div class="summary-amount" id="husbandSpend">₹0</div>
+                    <div class="summary-person">Including shared (50%)</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">Wife Spent</div>
+                    <div class="summary-amount" id="wifeSpend">₹0</div>
+                    <div class="summary-person">Including shared (50%)</div>
+                </div>
+            </div>
+
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <div class="summary-label">Total Shared</div>
+                    <div class="summary-amount" id="sharedExpense">₹0</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">Grand Total</div>
+                    <div class="summary-amount" id="grandTotal">₹0</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Category Breakdown</h3>
+                <div class="table-wrapper">
+                    <table id="categoryTable">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Amount</th>
+                                <th>Count</th>
+                                <th>%</th>
+                            </tr>
+                        </thead>
+                        <tbody id="categoryTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Recent Expenses</h3>
+                <div class="expense-list" id="expenseList"></div>
+            </div>
+
+            <div class="card">
+                <button class="btn btn-secondary" onclick="exportToCSV()">📥 Export as CSV</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- OVERVIEW SECTION -->
+    <section id="overview" class="section">
+        <div class="container">
+            <div class="card">
+                <h3>Monthly Income (Optional)</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Husband Income (₹)</label>
+                        <input type="number" class="form-input" id="husbandIncome" placeholder="0" step="0.01" min="0" oninput="updateOverview()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Wife Income (₹)</label>
+                        <input type="number" class="form-input" id="wifeIncome" placeholder="0" step="0.01" min="0" oninput="updateOverview()">
+                    </div>
+                </div>
+            </div>
+
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <div class="summary-label">Combined Income</div>
+                    <div class="summary-amount" id="combinedIncome">₹0</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">Total Expenses</div>
+                    <div class="summary-amount" id="monthlyTotalExpenses">₹0</div>
+                </div>
+            </div>
+
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <div class="summary-label">Estimated Savings</div>
+                    <div class="summary-amount" id="estimatedSavings">₹0</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">Savings %</div>
+                    <div class="summary-amount" id="savingsPercent">0%</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>💡 Financial Insights</h3>
+                <div id="insightContainer"></div>
+            </div>
+
+            <div class="card">
+                <h3>Spending Distribution</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px;">
+                    <div>
+                        <div style="text-align: center; font-size: 12px; color: var(--text-light); margin-bottom: 8px;">Husband vs Wife</div>
+                        <div style="width: 120px; height: 120px; border-radius: 50%; background: conic-gradient(var(--primary) 0deg 180deg, var(--secondary) 180deg 360deg); margin: 0 auto;"></div>
+                    </div>
+                    <div>
+                        <div style="margin-bottom: 12px;">
+                            <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
+                                <div style="width: 16px; height: 16px; background: var(--primary); border-radius: 3px;"></div>
+                                <span>Husband: <strong id="husbandSharePercent">0%</strong></span>
+                            </div>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <div style="width: 16px; height: 16px; background: var(--secondary); border-radius: 3px;"></div>
+                                <span>Wife: <strong id="wifeSharePercent">0%</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SETTINGS SECTION -->
+    <section id="settings" class="section">
+        <div class="container">
+            <div class="card">
+                <h3>Theme Customization</h3>
+                
+                <div style="margin-bottom: 24px;">
+                    <label class="form-label">Theme Mode</label>
+                    <div class="form-row">
+                        <button class="btn btn-outline" onclick="setTheme('light')" id="themeLight" style="flex: 1;">☀️ Light</button>
+                        <button class="btn btn-outline" onclick="setTheme('dark')" id="themeDark" style="flex: 1;">🌙 Dark</button>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 24px;">
+                    <label class="form-label">Primary Color</label>
+                    <div class="color-picker-grid" id="primaryColorPicker"></div>
+                </div>
+
+                <div style="margin-bottom: 24px;">
+                    <label class="form-label">Secondary Color</label>
+                    <div class="color-picker-grid" id="secondaryColorPicker"></div>
+                </div>
+
+                <div style="margin-bottom: 24px;">
+                    <label class="form-label">Accent Color</label>
+                    <div class="color-picker-grid" id="accentColorPicker"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Typography</h3>
+                
+                <div style="margin-bottom: 24px;">
+                    <label class="form-label">Font Style</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+                        <button class="btn btn-outline" onclick="setFontStyle('clean')" id="fontClean">Clean</button>
+                        <button class="btn btn-outline" onclick="setFontStyle('playful')" id="fontPlayful">Playful</button>
+                        <button class="btn btn-outline" onclick="setFontStyle('serif')" id="fontSerif">Serif</button>
+                    </div>
+                    <div class="font-preview clean" id="fontPreview">The quick brown fox jumps over the lazy dog</div>
+                </div>
+
+                <div style="margin-bottom: 24px;">
+                    <label class="form-label">Font Size</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+                        <button class="btn btn-outline" onclick="setFontSize('small')" id="fontSmall">Small</button>
+                        <button class="btn btn-outline" onclick="setFontSize('medium')" id="fontMedium">Medium</button>
+                        <button class="btn btn-outline" onclick="setFontSize('large')" id="fontLarge">Large</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Header Customization</h3>
+                
+                <div style="margin-bottom: 16px;">
+                    <label class="form-label">Cover Photo</label>
+                    <div class="upload-area" onclick="document.getElementById('coverPhotoInput').click()">
+                        <div>📷 Click to upload or drag & drop</div>
+                        <small>JPG, PNG (Max 5MB)</small>
+                        <input type="file" id="coverPhotoInput" accept="image/*" onchange="uploadCoverPhoto(event)">
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 16px;">
+                    <img id="coverPhotoPreview" class="photo-preview" style="display: none;">
+                </div>
+
+                <div style="margin-bottom: 16px;">
+                    <label class="form-label">Header Text</label>
+                    <input type="text" class="form-input" id="headerTitle" placeholder="Couple Expense Tracker" oninput="updateHeaderText()">
+                </div>
+
+                <div style="margin-bottom: 16px;">
+                    <label class="form-label">Header Subtitle</label>
+                    <input type="text" class="form-input" id="headerSubtitleText" placeholder="Manage your finances together" oninput="updateHeaderText()">
+                </div>
+
+                <button class="btn btn-danger" onclick="clearHeader()" style="width: 100%;">Remove Header Photo</button>
+            </div>
+
+            <div class="card">
+                <h3>Data Management</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <button class="btn btn-secondary" onclick="exportData()" style="width: 100%;">💾 Export Data</button>
+                    <button class="btn btn-outline" onclick="importData()" style="width: 100%;">📂 Import Data</button>
+                </div>
+                <button class="btn btn-danger" onclick="clearAllData()" style="width: 100%; margin-top: 8px;">🗑️ Clear All Data</button>
+                <input type="file" id="importInput" accept=".json" onchange="handleImport(event)" style="display: none;">
+            </div>
+        </div>
+    </section>
+
+    <!-- BOTTOM MOBILE NAV -->
+    <div class="bottom-nav">
+        <button class="bottom-nav-btn active" onclick="switchSection('add-expense')">
+            <div class="bottom-nav-icon">➕</div>
+            <div>Add</div>
+        </button>
+        <button class="bottom-nav-btn" onclick="switchSection('summaries')">
+            <div class="bottom-nav-icon">📊</div>
+            <div>Summary</div>
+        </button>
+        <button class="bottom-nav-btn" onclick="switchSection('overview')">
+            <div class="bottom-nav-icon">👫</div>
+            <div>Overview</div>
+        </button>
+        <button class="bottom-nav-btn" onclick="switchSection('settings')">
+            <div class="bottom-nav-icon">⚙️</div>
+            <div>Settings</div>
+        </button>
+    </div>
+
+    <script>
+        // ==================== DATA STATE ====================
+        let appState = {
+            expenses: [],
+            settings: {
+                theme: 'light',
+                primaryColor: '#e91e63',
+                secondaryColor: '#2196f3',
+                accentColor: '#ff6f00',
+                fontStyle: 'clean',
+                fontSize: 'medium',
+                coverPhotoData: null,
+                headerTitle: 'Couple Expense Tracker',
+                headerSubtitle: 'Manage your finances together'
+            },
+            dateFilter: 'month',
+            customDateRange: null
+        };
+
+        const colorPresets = [
+            '#e91e63', '#f44336', '#ff6f00', '#ffc107', '#4caf50', '#2196f3',
+            '#9c27b0', '#673ab7', '#3f51b5', '#00bcd4', '#009688', '#8bc34a'
+        ];
+
+        // ==================== INITIALIZATION ====================
+        function init() {
+            loadFromStorage();
+            setDefaultDate();
+            renderColorPickers();
+            applyTheme();
+            applyFontSettings();
+            updateSummaries();
+            updateOverview();
+        }
+
+        // ==================== SECTION SWITCHING ====================
+        function switchSection(sectionId) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            document.querySelectorAll('.bottom-nav-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[onclick*="'${sectionId}'"]`).classList.add('active');
+
+            if (sectionId === 'summaries') updateSummaries();
+            if (sectionId === 'overview') updateOverview();
+        }
+
+        // ==================== ADD EXPENSE ====================
+        function addExpense(e) {
+            e.preventDefault();
+
+            const person = document.getElementById('expensePerson').value;
+            const date = document.getElementById('expenseDate').value;
+            const amount = parseFloat(document.getElementById('expenseAmount').value);
+            const category = document.getElementById('expenseCategory').value;
+            const paymentMode = document.getElementById('expensePaymentMode').value;
+            const type = document.getElementById('expenseType').value;
+            const note = document.getElementById('expenseNote').value;
+
+            if (!person || !date || !amount || !category || !paymentMode || !type) {
+                showToast('Please fill all required fields', 'error');
+                return;
+            }
+
+            const expense = {
+                id: Date.now(),
+                person,
+                date,
+                amount,
+                category,
+                paymentMode,
+                type,
+                note
+            };
+
+            appState.expenses.push(expense);
+            saveToStorage();
+            resetExpenseForm();
+            showToast('✅ Expense added successfully!');
+            updateSummaries();
+        }
+
+        function resetExpenseForm() {
+            document.getElementById('expensePerson').value = '';
+            document.getElementById('expenseAmount').value = '';
+            document.getElementById('expenseCategory').value = '';
+            document.getElementById('expensePaymentMode').value = '';
+            document.getElementById('expenseType').value = 'Personal';
+            document.getElementById('expenseNote').value = '';
+            setDefaultDate();
+        }
+
+        // ==================== FILTERING ====================
+        function setDefaultDate() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('expenseDate').value = today;
+        }
+
+        function setDateFilter(range) {
+            appState.dateFilter = range;
+            appState.customDateRange = null;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('customDateFilter').style.display = 'none';
+            updateSummaries();
+        }
+
+        function toggleDatePickerFilter() {
+            const elem = document.getElementById('customDateFilter');
+            elem.style.display = elem.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function applyCustomDateFilter() {
+            const from = document.getElementById('filterFromDate').value;
+            const to = document.getElementById('filterToDate').value;
+
+            if (!from || !to) {
+                showToast('Please select both dates', 'error');
+                return;
+            }
+
+            appState.customDateRange = { from, to };
+            appState.dateFilter = 'custom';
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            updateSummaries();
+        }
+
+        function getFilteredExpenses() {
+            const now = new Date();
+            let startDate, endDate = new Date(now);
+
+            if (appState.dateFilter === 'today') {
+                startDate = new Date(now);
+                startDate.setHours(0, 0, 0, 0);
+                endDate.setHours(23, 59, 59, 999);
+            } else if (appState.dateFilter === 'week') {
+                startDate = new Date(now);
+                startDate.setDate(now.getDate() - now.getDay());
+                startDate.setHours(0, 0, 0, 0);
+                endDate.setHours(23, 59, 59, 999);
+            } else if (appState.dateFilter === 'month') {
+                startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+                endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+            } else if (appState.dateFilter === 'custom' && appState.customDateRange) {
+                startDate = new Date(appState.customDateRange.from);
+                endDate = new Date(appState.customDateRange.to);
+                endDate.setHours(23, 59, 59, 999);
+            }
+
+            return appState.expenses.filter(exp => {
+                const expDate = new Date(exp.date);
+                return expDate >= startDate && expDate <= endDate;
+            });
+        }
+
+        // ==================== SUMMARIES ====================
+        function updateSummaries() {
+            const filtered = getFilteredExpenses();
+
+            let husbandTotal = 0, wifeTotal = 0, sharedTotal = 0;
+
+            filtered.forEach(exp => {
+                if (exp.person === 'Husband') husbandTotal += exp.amount;
+                else if (exp.person === 'Wife') wifeTotal += exp.amount;
+                else if (exp.person === 'Both') sharedTotal += exp.amount;
+            });
+
+            const husbandWithShared = husbandTotal + (sharedTotal / 2);
+            const wifeWithShared = wifeTotal + (sharedTotal / 2);
+            const grandTotal = husbandTotal + wifeTotal + sharedTotal;
+
+            document.getElementById('husbandSpend').textContent = formatCurrency(husbandWithShared);
+            document.getElementById('wifeSpend').textContent = formatCurrency(wifeWithShared);
+            document.getElementById('sharedExpense').textContent = formatCurrency(sharedTotal);
+            document.getElementById('grandTotal').textContent = formatCurrency(grandTotal);
+
+            // Category breakdown
+            const categoryMap = {};
+            filtered.forEach(exp => {
+                if (!categoryMap[exp.category]) {
+                    categoryMap[exp.category] = { amount: 0, count: 0 };
+                }
+                categoryMap[exp.category].amount += exp.amount;
+                categoryMap[exp.category].count += 1;
+            });
+
+            const categoryTableBody = document.getElementById('categoryTableBody');
+            categoryTableBody.innerHTML = '';
+
+            Object.entries(categoryMap).forEach(([cat, data]) => {
+                const percent = ((data.amount / grandTotal) * 100).toFixed(1);
+                const row = `<tr>
+                    <td>${cat}</td>
+                    <td>${formatCurrency(data.amount)}</td>
+                    <td>${data.count}</td>
+                    <td>${percent}%</td>
+                </tr>`;
+                categoryTableBody.innerHTML += row;
+            });
+
+            // Recent expenses
+            const expenseList = document.getElementById('expenseList');
+            expenseList.innerHTML = '';
+            const sorted = [...filtered].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 10);
+
+            sorted.forEach(exp => {
+                const effectivePerson = exp.person === 'Both' ? '👫 Shared' : exp.person;
+                const item = `<div class="expense-item">
+                    <div class="expense-item-left">
+                        <div class="expense-date">${new Date(exp.date).toLocaleDateString('en-IN')}</div>
+                        <div class="expense-description">${exp.note || 'No description'}</div>
+                        <span class="expense-category">${exp.category}</span>
+                    </div>
+                    <div>
+                        <div class="expense-amount">${formatCurrency(exp.amount)}</div>
+                        <div class="expense-person">${effectivePerson}</div>
+                    </div>
+                </div>`;
+                expenseList.innerHTML += item;
+            });
+        }
+
+        function formatCurrency(amount) {
+            return '₹' + amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        }
+
+        // ==================== OVERVIEW ====================
+        function updateOverview() {
+            const husbandIncome = parseFloat(document.getElementById('husbandIncome').value) || 0;
+            const wifeIncome = parseFloat(document.getElementById('wifeIncome').value) || 0;
+            const combinedIncome = husbandIncome + wifeIncome;
+
+            const monthExpenses = getFilteredExpenses();
+            let monthlySpend = 0;
+            monthExpenses.forEach(exp => {
+                monthlySpend += exp.amount;
+            });
+
+            const savings = combinedIncome - monthlySpend;
+            const savingsPercent = combinedIncome > 0 ? ((savings / combinedIncome) * 100).toFixed(1) : 0;
+
+            document.getElementById('combinedIncome').textContent = formatCurrency(combinedIncome);
+            document.getElementById('monthlyTotalExpenses').textContent = formatCurrency(monthlySpend);
+            document.getElementById('estimatedSavings').textContent = formatCurrency(savings);
+            document.getElementById('savingsPercent').textContent = savingsPercent + '%';
+
+            // Spending distribution
+            let husbandSpend = 0, wifeSpend = 0, sharedSpend = 0;
+            monthExpenses.forEach(exp => {
+                if (exp.person === 'Husband') husbandSpend += exp.amount;
+                else if (exp.person === 'Wife') wifeSpend += exp.amount;
+                else if (exp.person === 'Both') sharedSpend += exp.amount;
+            });
+
+            const husbandEffective = husbandSpend + (sharedSpend / 2);
+            const wifeEffective = wifeSpend + (sharedSpend / 2);
+            const totalEffective = husbandEffective + wifeEffective;
+
+            const husbandPct = totalEffective > 0 ? ((husbandEffective / totalEffective) * 100).toFixed(0) : 0;
+            const wifePct = totalEffective > 0 ? ((wifeEffective / totalEffective) * 100).toFixed(0) : 0;
+
+            document.getElementById('husbandSharePercent').textContent = husbandPct + '%';
+            document.getElementById('wifeSharePercent').textContent = wifePct + '%';
+
+            generateInsights(husbandSpend, wifeSpend, sharedSpend, monthlySpend, combinedIncome);
+        }
+
+        function generateInsights(husbandSpend, wifeSpend, sharedSpend, totalSpend, income) {
+            const insights = [];
+
+            if (sharedSpend > 0) {
+                const sharedPct = ((sharedSpend / totalSpend) * 100).toFixed(0);
+                insights.push(`💑 Shared expenses are <strong>${sharedPct}%</strong> of your total spending.`);
+            }
+
+            // Most spent category
+            const categoryMap = {};
+            getFilteredExpenses().forEach(exp => {
+                if (!categoryMap[exp.category]) categoryMap[exp.category] = 0;
+                categoryMap[exp.category] += exp.amount;
+            });
+
+            const topCategory = Object.entries(categoryMap).sort((a, b) => b[1] - a[1])[0];
+            if (topCategory) {
+                insights.push(`🔝 <strong>${topCategory[0]}</strong> is your top spending category at ${formatCurrency(topCategory[1])}.`);
+            }
+
+            if (income > 0) {
+                const spendingRatio = ((totalSpend / income) * 100).toFixed(0);
+                insights.push(`💰 You've spent <strong>${spendingRatio}%</strong> of your combined income this month.`);
+
+                if (spendingRatio < 50) {
+                    insights.push(`🎉 Great job! You're saving more than 50% of your income!`);
+                } else if (spendingRatio > 80) {
+                    insights.push(`⚠️ Watch out! You're spending over 80% of your income.`);
+                }
+            }
+
+            const spendDifference = Math.abs(husbandSpend - wifeSpend);
+            if (spendDifference > 0) {
+                const spender = husbandSpend > wifeSpend ? '👨 Husband' : '👩 Wife';
+                insights.push(`📊 ${spender} has spent ${formatCurrency(spendDifference)} more than their partner.`);
+            }
+
+            const insightContainer = document.getElementById('insightContainer');
+            insightContainer.innerHTML = insights.map(insight => `<div class="insight">${insight}</div>`).join('');
+        }
+
+        // ==================== EXPORT / IMPORT ====================
+        function exportToCSV() {
+            const filtered = getFilteredExpenses();
+            let csv = 'Date,Person,Category,Type,Amount,Payment Mode,Note\n';
+
+            filtered.forEach(exp => {
+                const row = [
+                    exp.date,
+                    exp.person,
+                    exp.category,
+                    exp.type,
+                    exp.amount,
+                    exp.paymentMode,
+                    `"${exp.note || ''}"`
+                ].join(',');
+                csv += row + '\n';
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `expense-tracker-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+            showToast('✅ CSV exported successfully!');
+        }
+
+        function exportData() {
+            const data = JSON.stringify(appState, null, 2);
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `couple-expense-backup-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+            showToast('✅ Data exported successfully!');
+        }
+
+        function importData() {
+            document.getElementById('importInput').click();
+        }
+
+        function handleImport(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const imported = JSON.parse(event.target.result);
+                    appState = { ...appState, ...imported };
+                    saveToStorage();
+                    applyTheme();
+                    applyFontSettings();
+                    showToast('✅ Data imported successfully!');
+                    updateSummaries();
+                    updateOverview();
+                } catch (err) {
+                    showToast('❌ Invalid file format', 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function clearAllData() {
+            if (confirm('⚠️ This will delete ALL expenses and settings. Are you sure?')) {
+                appState.expenses = [];
+                appState.settings = {
+                    theme: 'light',
+                    primaryColor: '#e91e63',
+                    secondaryColor: '#2196f3',
+                    accentColor: '#ff6f00',
+                    fontStyle: 'clean',
+                    fontSize: 'medium',
+                    coverPhotoData: null,
+                    headerTitle: 'Couple Expense Tracker',
+                    headerSubtitle: 'Manage your finances together'
+                };
+                saveToStorage();
+                applyTheme();
+                applyFontSettings();
+                showToast('🗑️ All data cleared');
+                updateSummaries();
+                updateOverview();
+            }
+        }
+
+        // ==================== THEME & SETTINGS ====================
+        function renderColorPickers() {
+            const pickers = ['primaryColorPicker', 'secondaryColorPicker', 'accentColorPicker'];
+            const settingKeys = ['primaryColor', 'secondaryColor', 'accentColor'];
+
+            pickers.forEach((pickerId, idx) => {
+                const settingKey = settingKeys[idx];
+                const container = document.getElementById(pickerId);
+                container.innerHTML = '';
+
+                colorPresets.forEach(color => {
+                    const swatch = document.createElement('div');
+                    swatch.className = 'color-swatch';
+                    swatch.style.backgroundColor = color;
+                    if (appState.settings[settingKey] === color) swatch.classList.add('selected');
+
+                    swatch.onclick = () => {
+                        appState.settings[settingKey] = color;
+                        saveToStorage();
+                        applyTheme();
+                        renderColorPickers();
+                    };
+
+                    container.appendChild(swatch);
+                });
+            });
+        }
+
+        function setTheme(theme) {
+            appState.settings.theme = theme;
+            document.body.setAttribute('data-theme', theme);
+            document.getElementById('themeLight').classList.toggle('active', theme === 'light');
+            document.getElementById('themeDark').classList.toggle('active', theme === 'dark');
+            saveToStorage();
+        }
+
+        function setFontStyle(style) {
+            appState.settings.fontStyle = style;
+            applyFontSettings();
+            saveToStorage();
+        }
+
+        function setFontSize(size) {
+            appState.settings.fontSize = size;
+            applyFontSettings();
+            saveToStorage();
+        }
+
+        function applyFontSettings() {
+            const fontMap = {
+                clean: "'Segoe UI', Tahoma, sans-serif",
+                playful: "'Comic Sans MS', 'Trebuchet MS', cursive",
+                serif: "'Georgia', 'Times New Roman', serif"
+            };
+
+            const sizeMap = {
+                small: '13px',
+                medium: '14px',
+                large: '16px'
+            };
+
+            const fontFamily = fontMap[appState.settings.fontStyle] || fontMap.clean;
+            const fontSize = sizeMap[appState.settings.fontSize] || sizeMap.medium;
+
+            document.documentElement.style.setProperty('--font-family', fontFamily);
+            document.documentElement.style.setProperty('--font-size-base', fontSize);
+
+            document.getElementById('fontPreview').className = `font-preview ${appState.settings.fontStyle}`;
+            document.getElementById('fontClean').classList.toggle('active', appState.settings.fontStyle === 'clean');
+            document.getElementById('fontPlayful').classList.toggle('active', appState.settings.fontStyle === 'playful');
+            document.getElementById('fontSerif').classList.toggle('active', appState.settings.fontStyle === 'serif');
+
+            document.getElementById('fontSmall').classList.toggle('active', appState.settings.fontSize === 'small');
+            document.getElementById('fontMedium').classList.toggle('active', appState.settings.fontSize === 'medium');
+            document.getElementById('fontLarge').classList.toggle('active', appState.settings.fontSize === 'large');
+        }
+
+        function applyTheme() {
+            document.documentElement.style.setProperty('--primary', appState.settings.primaryColor);
+            document.documentElement.style.setProperty('--secondary', appState.settings.secondaryColor);
+            document.documentElement.style.setProperty('--accent', appState.settings.accentColor);
+
+            document.body.setAttribute('data-theme', appState.settings.theme);
+            setTheme(appState.settings.theme);
+            renderColorPickers();
+
+            if (appState.settings.coverPhotoData) {
+                document.getElementById('header').style.backgroundImage = `url('${appState.settings.coverPhotoData}')`;
+                document.getElementById('coverPhotoPreview').src = appState.settings.coverPhotoData;
+                document.getElementById('coverPhotoPreview').style.display = 'block';
+            }
+        }
+
+        function uploadCoverPhoto(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                appState.settings.coverPhotoData = event.target.result;
+                saveToStorage();
+                document.getElementById('header').style.backgroundImage = `url('${event.target.result}')`;
+                document.getElementById('coverPhotoPreview').src = event.target.result;
+                document.getElementById('coverPhotoPreview').style.display = 'block';
+                showToast('✅ Cover photo updated!');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearHeader() {
+            if (confirm('Remove the header photo?')) {
+                appState.settings.coverPhotoData = null;
+                saveToStorage();
+                document.getElementById('header').style.backgroundImage = 'none';
+                document.getElementById('coverPhotoPreview').style.display = 'none';
+                showToast('✅ Header photo removed');
+            }
+        }
+
+        function updateHeaderText() {
+            const title = document.getElementById('headerTitle').value || 'Couple Expense Tracker';
+            const subtitle = document.getElementById('headerSubtitleText').value || 'Manage your finances together';
+
+            appState.settings.headerTitle = title;
+            appState.settings.headerSubtitle = subtitle;
+
+            document.querySelector('.header h1').textContent = title;
+            document.getElementById('headerSubtitle').textContent = subtitle;
+
+            saveToStorage();
+        }
+
+        // ==================== STORAGE ====================
+        function saveToStorage() {
+            localStorage.setItem('coupleExpenseTrackerApp', JSON.stringify(appState));
+        }
+
+        function loadFromStorage() {
+            const saved = localStorage.getItem('coupleExpenseTrackerApp');
+            if (saved) {
+                appState = JSON.parse(saved);
+            }
+
+            document.getElementById('headerTitle').value = appState.settings.headerTitle;
+            document.getElementById('headerSubtitleText').value = appState.settings.headerSubtitle;
+        }
+
+        // ==================== UI HELPERS ====================
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type === 'error' ? 'error' : ''}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        // Initialize on load
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
