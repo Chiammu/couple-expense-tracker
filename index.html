@@ -1327,17 +1327,18 @@
                 else effectivePerson = exp.person;
 
                 const item = `<div class="expense-item">
-                    <div class="expense-item-left">
-                        <div class="expense-date">${new Date(exp.date).toLocaleDateString('en-IN')}</div>
-                        <div class="expense-description">${exp.note || 'No description'}</div>
-                        <span class="expense-category">${exp.category}</span>
-                    </div>
-                    <div style="text-align: right;">
-                        <div class="expense-amount">${formatCurrency(exp.amount)}</div>
-                        <div class="expense-person">${effectivePerson}</div>
-                        <button class="btn btn-small btn-outline" style="margin-top: 6px;" onclick="startEditExpense(${exp.id})">Edit</button>
-                    </div>
-                </div>`;
+    <div class="expense-item-left">
+        <div class="expense-date">${new Date(exp.date).toLocaleDateString('en-IN')}</div>
+        <div class="expense-description">${exp.note || 'No description'}</div>
+        <span class="expense-category">${exp.category}</span>
+    </div>
+    <div style="text-align: right;">
+        <div class="expense-amount">${formatCurrency(exp.amount)}</div>
+        <div class="expense-person">${effectivePerson}</div>
+        <button class="btn btn-small btn-outline" style="margin-top: 6px; margin-right: 4px;" onclick="startEditExpense(${exp.id})">Edit</button>
+        <button class="btn btn-small btn-danger" style="margin-top: 6px;" onclick="deleteExpense(${exp.id})">Delete</button>
+    </div>
+</div>`;
                 expenseList.innerHTML += item;
             });
         }
@@ -1353,7 +1354,16 @@
             saveToStorage();
             updateOverview();
         }
+function deleteExpense(id) {
+    if (!confirm('Delete this expense?')) return;
 
+    appState.expenses = appState.expenses.filter(e => e.id !== id);
+    saveToStorage();
+    updateSummaries();
+    updateOverview();
+    checkReminderBanner();
+    showToast('🗑️ Expense deleted');
+}
         function updateOverview() {
             const husbandIncome = parseFloat(document.getElementById('husbandIncome').value) || 0;
             const wifeIncome = parseFloat(document.getElementById('wifeIncome').value) || 0;
