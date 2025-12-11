@@ -19,6 +19,7 @@
             --primary-rgb: 233, 30, 99;
             --secondary-rgb: 33, 150, 243;
             --accent-rgb: 255, 111, 0;
+            --base-font-size: 15px; /* Added for easy global size adjustment */
         }
 
         [data-theme="dark"] {
@@ -39,6 +40,7 @@
             background-color: var(--bg);
             color: var(--text);
             transition: background-color 0.3s, color 0.3s;
+            font-size: var(--base-font-size);
         }
 
         body {
@@ -224,7 +226,7 @@
         }
 
         .btn-primary:hover {
-            background: darken-primary;
+            background: #c2185b; /* Slightly darker primary */
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.3);
         }
@@ -643,7 +645,6 @@
     </style>
 </head>
 <body>
-    <!-- HEADER -->
     <div class="header" id="header">
         <div class="header-content">
             <h1>💑 Couple Expense Tracker</h1>
@@ -651,17 +652,15 @@
         </div>
     </div>
 
-    <!-- NAVIGATION -->
     <div class="container" style="padding-top: 0;">
         <div class="nav">
-            <button class="nav-btn active" onclick="switchSection('add-expense')">➕ Add Expense</button>
-            <button class="nav-btn" onclick="switchSection('summaries')">📊 Summaries</button>
-            <button class="nav-btn" onclick="switchSection('overview')">👩‍❤️‍👨 Overview</button>
-            <button class="nav-btn" onclick="switchSection('settings')">⚙️ Settings</button>
+            <button class="nav-btn active" onclick="switchSection('add-expense', this)">➕ Add Expense</button>
+            <button class="nav-btn" onclick="switchSection('summaries', this)">📊 Summaries</button>
+            <button class="nav-btn" onclick="switchSection('overview', this)">👩‍❤️‍👨 Overview</button>
+            <button class="nav-btn" onclick="switchSection('settings', this)">⚙️ Settings</button>
         </div>
     </div>
 
-    <!-- ADD EXPENSE SECTION -->
     <section id="add-expense" class="section active">
         <div class="container">
             <div class="card">
@@ -739,16 +738,15 @@
         </div>
     </section>
 
-    <!-- SUMMARIES SECTION -->
     <section id="summaries" class="section">
         <div class="container">
             <div class="card">
                 <h3>Filter Expenses</h3>
                 <div class="filter-group">
-                    <button class="filter-btn active" onclick="setDateFilter('today')">Today</button>
-                    <button class="filter-btn" onclick="setDateFilter('week')">This Week</button>
-                    <button class="filter-btn" onclick="setDateFilter('month')">This Month</button>
-                    <button class="filter-btn" onclick="toggleDatePickerFilter()">Custom</button>
+                    <button class="filter-btn active" onclick="setDateFilter('today', this)">Today</button>
+                    <button class="filter-btn" onclick="setDateFilter('week', this)">This Week</button>
+                    <button class="filter-btn" onclick="setDateFilter('month', this)">This Month</button>
+                    <button class="filter-btn" onclick="setDateFilter('custom', this); toggleDatePickerFilter()">Custom</button>
                 </div>
                 <div id="customDateFilter" style="display: none; margin-top: 12px;">
                     <div class="form-row">
@@ -818,7 +816,6 @@
         </div>
     </section>
 
-    <!-- OVERVIEW SECTION -->
     <section id="overview" class="section">
         <div class="container">
             <div class="card">
@@ -926,7 +923,6 @@
             </div>
         </div>
     </section>
-    <!-- SETTINGS SECTION -->
     <section id="settings" class="section">
         <div class="container">
             <div class="card">
@@ -1037,21 +1033,20 @@
         </div>
     </section>
 
-    <!-- BOTTOM MOBILE NAV -->
     <div class="bottom-nav">
-        <button class="bottom-nav-btn active" onclick="switchSection('add-expense')">
+        <button class="bottom-nav-btn active" onclick="switchSection('add-expense', this)">
             <div class="bottom-nav-icon">➕</div>
             <div>Add</div>
         </button>
-        <button class="bottom-nav-btn" onclick="switchSection('summaries')">
+        <button class="bottom-nav-btn" onclick="switchSection('summaries', this)">
             <div class="bottom-nav-icon">📊</div>
             <div>Summary</div>
         </button>
-        <button class="bottom-nav-btn" onclick="switchSection('overview')">
+        <button class="bottom-nav-btn" onclick="switchSection('overview', this)">
             <div class="bottom-nav-icon">👫</div>
             <div>Overview</div>
         </button>
-        <button class="bottom-nav-btn" onclick="switchSection('settings')">
+        <button class="bottom-nav-btn" onclick="switchSection('settings', this)">
             <div class="bottom-nav-icon">⚙️</div>
             <div>Settings</div>
         </button>
@@ -1095,6 +1090,8 @@
             renderColorPickers();
             applyTheme();
             applyFontSettings();
+            applyCoverPhoto();
+            applyHeaderText();
             refreshPersonLabels();
             renderOtherIncome();
             renderFixedPayments();
@@ -1105,15 +1102,23 @@
         document.addEventListener('DOMContentLoaded', init);
 
         // ==================== SECTION SWITCHING ====================
-        function switchSection(sectionId) {
+        function switchSection(sectionId, element) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.getElementById(sectionId).classList.add('active');
 
+            // Update main nav buttons
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            if (element && element.classList.contains('nav-btn')) {
+                element.classList.add('active');
+            } else {
+                // Find and activate the corresponding main nav button
+                document.querySelector(`.nav-btn[onclick*="${sectionId}"]`).classList.add('active');
+            }
 
+            // Update bottom mobile nav buttons
             document.querySelectorAll('.bottom-nav-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelector(`[onclick*="'${sectionId}'"]`).classList.add('active');
+            document.querySelector(`.bottom-nav-btn[onclick*="${sectionId}"]`).classList.add('active');
+
 
             if (sectionId === 'summaries') updateSummaries();
             if (sectionId === 'overview') updateOverview();
@@ -1219,12 +1224,21 @@
             document.getElementById('expenseDate').value = today;
         }
 
-        function setDateFilter(range) {
+        function setDateFilter(range, element) {
             appState.dateFilter = range;
             appState.customDateRange = null;
+            
             document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            document.getElementById('customDateFilter').style.display = 'none';
+            if (element) {
+                element.classList.add('active');
+            } else {
+                 document.querySelector(`.filter-btn[onclick*="'${range}'"]`).classList.add('active');
+            }
+
+            if (range !== 'custom') {
+                 document.getElementById('customDateFilter').style.display = 'none';
+            }
+
             updateSummaries();
         }
 
@@ -1244,7 +1258,10 @@
 
             appState.customDateRange = { from, to };
             appState.dateFilter = 'custom';
+
             document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.filter-btn[onclick*="'custom'"]`).classList.add('active');
+
             updateSummaries();
         }
 
@@ -1258,8 +1275,11 @@
                 endDate.setHours(23, 59, 59, 999);
             } else if (appState.dateFilter === 'week') {
                 startDate = new Date(now);
-                startDate.setDate(now.getDate() - now.getDay());
+                // Start of the week (Sunday)
+                startDate.setDate(now.getDate() - now.getDay()); 
                 startDate.setHours(0, 0, 0, 0);
+                // End of the week (Saturday)
+                endDate.setDate(startDate.getDate() + 6);
                 endDate.setHours(23, 59, 59, 999);
             } else if (appState.dateFilter === 'month') {
                 startDate = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -1270,8 +1290,16 @@
                 endDate.setHours(23, 59, 59, 999);
             }
 
+            // Fallback for initial load or if a filter is set but dates aren't fully defined
+            if (!startDate) {
+                // Default to current month if no specific filter is fully defined
+                startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+                endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+            }
+
+
             return appState.expenses.filter(exp => {
-                const expDate = new Date(exp.date);
+                const expDate = new Date(exp.date + 'T00:00:00'); // Ensure dates are compared accurately at midnight
                 return expDate >= startDate && expDate <= endDate;
             });
         }
@@ -1310,7 +1338,7 @@
             const categoryTableBody = document.getElementById('categoryTableBody');
             categoryTableBody.innerHTML = '';
 
-            Object.entries(categoryMap).forEach(([cat, data]) => {
+            Object.entries(categoryMap).sort(([, a], [, b]) => b.amount - a.amount).forEach(([cat, data]) => {
                 const percent = grandTotal > 0 ? ((data.amount / grandTotal) * 100).toFixed(1) : 0;
                 const row = `<tr>
                     <td>${cat}</td>
@@ -1356,7 +1384,7 @@
         }
 
         function formatCurrency(amount) {
-            return '₹' + amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            return '₹' + parseFloat(amount).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
         }
 
         // ==================== PIE CHART ====================
@@ -1388,7 +1416,7 @@
             let colorIndex = 0;
             legend.innerHTML = '';
 
-            Object.entries(categoryMap).forEach(([cat, amount]) => {
+            Object.entries(categoryMap).sort(([, a], [, b]) => b - a).forEach(([cat, amount]) => {
                 const value = amount;
                 const angle = (value / total) * 360;
                 const endAngle = startAngle + angle;
@@ -1514,6 +1542,7 @@
         }
 
         function updateOverview() {
+            // Read income from inputs (not persistent yet, but updates visuals)
             const husbandIncome = parseFloat(document.getElementById('husbandIncome').value) || 0;
             const wifeIncome = parseFloat(document.getElementById('wifeIncome').value) || 0;
 
@@ -1550,7 +1579,7 @@
                     if (monthlySpend > budget) {
                         document.getElementById('budgetReminderText').textContent =
                             '⚠️ You have crossed your monthly budget.';
-                        showToast('⚠️ Monthly budget exceeded!', 'error');
+                        // Removed showToast here to avoid constant notification on page refresh
                     } else if (monthlySpend > budget * 0.8) {
                         document.getElementById('budgetReminderText').textContent =
                             '⌛ You are above 80% of your budget.';
@@ -1569,6 +1598,7 @@
             if (reminderEl) {
                 const today = new Date();
                 const dayToday = today.getDate();
+                // Filter for payments due in the next 5 days (including today)
                 const upcoming = (appState.fixedPayments || []).filter(p => p.day >= dayToday && p.day <= dayToday + 5);
                 if (upcoming.length > 0) {
                     const names = upcoming.map(p => `${p.name} on ${p.day}`).join(', ');
@@ -1604,12 +1634,14 @@
                 categoryMap[exp.category] += exp.amount;
             });
 
-            const topCategory = Object.entries(categoryMap).sort((a, b) => b[1] - a[1])[0];
-            if (topCategory) {
+            const sortedCategories = Object.entries(categoryMap).sort((a, b) => b[1] - a[1]);
+            const topCategory = sortedCategories[0];
+
+            if (topCategory && topCategory[1] > 0) {
                 insights.push(`🔝 <strong>${topCategory[0]}</strong> is your top spending category at ${formatCurrency(topCategory[1])}.`);
             }
 
-            if (income > 0) {
+            if (income > 0 && totalSpend > 0) {
                 const spendingRatio = ((totalSpend / income) * 100).toFixed(0);
                 insights.push(`💰 You've spent <strong>${spendingRatio}%</strong> of your combined income in this period.`);
                 if (spendingRatio < 50) {
@@ -1620,11 +1652,11 @@
             }
 
             const spendDifference = Math.abs(p1Spend - p2Spend);
-            if (spendDifference > 0) {
+            if (spendDifference > 100) { // Only show if difference is significant
                 const p1Name = appState.settings.person1Name || 'Person 1';
                 const p2Name = appState.settings.person2Name || 'Person 2';
                 const spenderName = p1Spend > p2Spend ? p1Name : p2Name;
-                insights.push(`📊 ${spenderName} has spent ${formatCurrency(spendDifference)} more than their partner.`);
+                insights.push(`📊 ${spenderName} has spent ${formatCurrency(spendDifference)} more than their partner (excluding shared).`);
             }
 
             const insightContainer = document.getElementById('insightContainer');
@@ -1635,71 +1667,83 @@
             }
         }
 
-        // ==================== THEME & FONT ====================
-        function renderColorPickers() {
-            const primaryPicker = document.getElementById('primaryColorPicker');
-            const secondaryPicker = document.getElementById('secondaryColorPicker');
-            const accentPicker = document.getElementById('accentColorPicker');
+        // ==================== THEME & FONT (REFACTORED COLOR PICKER) ====================
+
+        /**
+         * Updates the CSS variable and appState for a specific color type.
+         * @param {string} type - 'primary', 'secondary', or 'accent'.
+         * @param {string} color - The new hex color value.
+         */
+        function setColor(type, color) {
+            appState.settings[`${type}Color`] = color;
+            saveToStorage();
+            
+            document.documentElement.style.setProperty(`--${type}`, color);
+            document.documentElement.style.setProperty(`--${type}-rgb`, hexToRgb(color));
+
+            // Re-render pickers to update 'selected' class
+            renderColorPickers();
+        }
+
+        /**
+         * Creates and renders a color picker grid for a specific color type.
+         * @param {string} elementId - The ID of the container element (e.g., 'primaryColorPicker').
+         * @param {string} type - 'primary', 'secondary', or 'accent'.
+         */
+        function createColorPicker(elementId, type) {
+            const container = document.getElementById(elementId);
+            if (!container) return;
+            
+            container.innerHTML = ''; // Clear previous swatches
+            const currentColor = appState.settings[`${type}Color`];
 
             colorPresets.forEach(color => {
-                const p = document.createElement('div');
-                p.className = 'color-swatch';
-                p.style.backgroundColor = color;
-                p.onclick = () => setPrimaryColor(color);
-                if (color === appState.settings.primaryColor) p.classList.add('selected');
-                primaryPicker.appendChild(p);
+                const swatch = document.createElement('div');
+                swatch.className = 'color-swatch';
+                swatch.style.backgroundColor = color;
+                
+                swatch.onclick = () => setColor(type, color);
 
-                const s = document.createElement('div');
-                s.className = 'color-swatch';
-                s.style.backgroundColor = color;
-                s.onclick = () => setSecondaryColor(color);
-                if (color === appState.settings.secondaryColor) s.classList.add('selected');
-                secondaryPicker.appendChild(s);
-
-                const a = document.createElement('div');
-                a.className = 'color-swatch';
-                a.style.backgroundColor = color;
-                a.onclick = () => setAccentColor(color);
-                if (color === appState.settings.accentColor) a.classList.add('selected');
-                accentPicker.appendChild(a);
+                if (color === currentColor) {
+                    swatch.classList.add('selected');
+                }
+                container.appendChild(swatch);
             });
+        }
+
+        /**
+         * Renders all color pickers using the unified creation function.
+         */
+        function renderColorPickers() {
+            createColorPicker('primaryColorPicker', 'primary');
+            createColorPicker('secondaryColorPicker', 'secondary');
+            createColorPicker('accentColorPicker', 'accent');
         }
 
         function setTheme(theme) {
             appState.settings.theme = theme;
             saveToStorage();
             applyTheme();
+            // Update button styles
+            document.getElementById('themeLight').classList.remove('btn-secondary');
+            document.getElementById('themeDark').classList.remove('btn-secondary');
+            if (theme === 'light') {
+                document.getElementById('themeLight').classList.add('btn-secondary');
+            } else {
+                document.getElementById('themeDark').classList.add('btn-secondary');
+            }
         }
 
         function applyTheme() {
             if (appState.settings.theme === 'dark') {
                 document.documentElement.setAttribute('data-theme', 'dark');
                 document.getElementById('themeDark').classList.add('btn-secondary');
+                document.getElementById('themeLight').classList.remove('btn-secondary');
             } else {
                 document.documentElement.removeAttribute('data-theme');
                 document.getElementById('themeLight').classList.add('btn-secondary');
+                document.getElementById('themeDark').classList.remove('btn-secondary');
             }
-        }
-
-        function setPrimaryColor(color) {
-            appState.settings.primaryColor = color;
-            saveToStorage();
-            document.documentElement.style.setProperty('--primary', color);
-            document.documentElement.style.setProperty('--primary-rgb', hexToRgb(color));
-        }
-
-        function setSecondaryColor(color) {
-            appState.settings.secondaryColor = color;
-            saveToStorage();
-            document.documentElement.style.setProperty('--secondary', color);
-            document.documentElement.style.setProperty('--secondary-rgb', hexToRgb(color));
-        }
-
-        function setAccentColor(color) {
-            appState.settings.accentColor = color;
-            saveToStorage();
-            document.documentElement.style.setProperty('--accent', color);
-            document.documentElement.style.setProperty('--accent-rgb', hexToRgb(color));
         }
 
         function setFontStyle(style) {
@@ -1715,28 +1759,47 @@
         }
 
         function applyFontSettings() {
-            const body = document.body;
-            body.classList.remove('font-clean', 'font-playful', 'font-serif');
-            if (appState.settings.fontStyle === 'playful') {
-                body.style.fontFamily = "'Comic Sans MS', 'Trebuchet MS', cursive";
-            } else if (appState.settings.fontStyle === 'serif') {
-                body.style.fontFamily = "'Georgia', 'Times New Roman', serif";
-            } else {
-                body.style.fontFamily = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
-            }
-
-            if (appState.settings.fontSize === 'small') {
-                body.style.fontSize = '13px';
-            } else if (appState.settings.fontSize === 'large') {
-                body.style.fontSize = '17px';
-            } else {
-                body.style.fontSize = '15px';
-            }
-
+            const root = document.documentElement;
             const preview = document.getElementById('fontPreview');
+
+            // Set Font Family
+            if (appState.settings.fontStyle === 'playful') {
+                root.style.setProperty('--font-family', "'Comic Sans MS', 'Trebuchet MS', cursive");
+            } else if (appState.settings.fontStyle === 'serif') {
+                root.style.setProperty('--font-family', "'Georgia', 'Times New Roman', serif");
+            } else {
+                root.style.setProperty('--font-family', "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif");
+            }
+
+            // Set Font Size
+            if (appState.settings.fontSize === 'small') {
+                root.style.setProperty('--base-font-size', '13px');
+            } else if (appState.settings.fontSize === 'large') {
+                root.style.setProperty('--base-font-size', '17px');
+            } else {
+                root.style.setProperty('--base-font-size', '15px');
+            }
+
+            // Update preview and buttons
             if (preview) {
                 preview.className = 'font-preview ' + appState.settings.fontStyle;
             }
+
+            ['clean', 'playful', 'serif'].forEach(style => {
+                const btn = document.getElementById(`font${style.charAt(0).toUpperCase() + style.slice(1)}`);
+                if (btn) {
+                    btn.classList.toggle('btn-secondary', appState.settings.fontStyle === style);
+                    btn.classList.toggle('btn-outline', appState.settings.fontStyle !== style);
+                }
+            });
+
+            ['small', 'medium', 'large'].forEach(size => {
+                const btn = document.getElementById(`font${size.charAt(0).toUpperCase() + size.slice(1)}`);
+                if (btn) {
+                    btn.classList.toggle('btn-secondary', appState.settings.fontSize === size);
+                    btn.classList.toggle('btn-outline', appState.settings.fontSize !== size);
+                }
+            });
         }
 
         function hexToRgb(hex) {
@@ -1782,8 +1845,8 @@
             const titleInput = document.getElementById('headerTitle').value.trim();
             const subtitleInput = document.getElementById('headerSubtitleText').value.trim();
 
-            if (titleInput) appState.settings.headerTitle = titleInput;
-            if (subtitleInput) appState.settings.headerSubtitle = subtitleInput;
+            appState.settings.headerTitle = titleInput || 'Couple Expense Tracker';
+            appState.settings.headerSubtitle = subtitleInput || 'Manage your finances together';
 
             saveToStorage();
             applyHeaderText();
@@ -1792,22 +1855,30 @@
         function applyHeaderText() {
             const h1 = document.querySelector('#header h1');
             const subtitle = document.getElementById('headerSubtitle');
-            if (h1) h1.textContent = appState.settings.headerTitle || '💑 Couple Expense Tracker';
+            if (h1) h1.textContent = appState.settings.headerTitle || 'Couple Expense Tracker';
             if (subtitle) subtitle.textContent = appState.settings.headerSubtitle || 'Manage your finances together';
+
+            const titleInput = document.getElementById('headerTitle');
+            const subtitleInput = document.getElementById('headerSubtitleText');
+            if (titleInput) titleInput.value = appState.settings.headerTitle || '';
+            if (subtitleInput) subtitleInput.value = appState.settings.headerSubtitle || '';
         }
 
         function clearHeader() {
             appState.settings.coverPhotoData = null;
             saveToStorage();
             applyCoverPhoto();
+            showToast('Header photo removed.');
         }
 
         // ==================== PERSON NAMES ====================
         function updatePersonNames() {
             const p1 = document.getElementById('person1NameInput').value.trim();
             const p2 = document.getElementById('person2NameInput').value.trim();
-            if (p1) appState.settings.person1Name = p1;
-            if (p2) appState.settings.person2Name = p2;
+            
+            appState.settings.person1Name = p1 || 'Person 1';
+            appState.settings.person2Name = p2 || 'Person 2';
+
             saveToStorage();
             refreshPersonLabels();
             updateSummaries();
@@ -1826,14 +1897,20 @@
 
             const personSelect = document.getElementById('expensePerson');
             if (personSelect) {
-                personSelect.options[1].textContent = `👤 ${p1Name}`;
-                personSelect.options[2].textContent = `👤 ${p2Name}`;
+                // Assuming Person1 is option index 1, Person2 is index 2
+                if(personSelect.options.length > 1) personSelect.options[1].textContent = `👤 ${p1Name}`;
+                if(personSelect.options.length > 2) personSelect.options[2].textContent = `👤 ${p2Name}`;
             }
 
             const p1IncomeLabel = document.querySelector('label[for="husbandIncome"]');
             const p2IncomeLabel = document.querySelector('label[for="wifeIncome"]');
             if (p1IncomeLabel) p1IncomeLabel.textContent = `${p1Name} Income (₹)`;
             if (p2IncomeLabel) p2IncomeLabel.textContent = `${p2Name} Income (₹)`;
+            
+            const p1NameInput = document.getElementById('person1NameInput');
+            const p2NameInput = document.getElementById('person2NameInput');
+            if (p1NameInput) p1NameInput.value = appState.settings.person1Name;
+            if (p2NameInput) p2NameInput.value = appState.settings.person2Name;
         }
 
         // ==================== EXPORT / IMPORT ====================
@@ -1848,16 +1925,16 @@
                     exp.category,
                     exp.amount,
                     exp.paymentMode,
-                    `"${exp.note || ''}"`
+                    `"${(exp.note || '').replace(/"/g, '""')}"` // Handle quotes in notes
                 ].join(',');
                 csv += row + '\n';
             });
 
-            const blob = new Blob([csv], { type: 'text/csv' });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `expense-tracker-${new Date().toISOString().split('T')[0]}.csv`;
+            a.download = `expense-tracker-filtered-${new Date().toISOString().split('T')[0]}.csv`;
             a.click();
             window.URL.revokeObjectURL(url);
             showToast('✅ CSV exported successfully!');
@@ -1886,27 +1963,24 @@
             reader.onload = function(e) {
                 try {
                     const imported = JSON.parse(e.target.result);
-                    appState = imported;
+                    // Simple merge/overwrite - assume imported data is valid
+                    appState = {
+                        ...appState,
+                        ...imported,
+                        settings: { ...appState.settings, ...(imported.settings || {}) }
+                    };
                     saveToStorage();
-                    applyTheme();
-                    applyFontSettings();
-                    applyCoverPhoto();
-                    applyHeaderText();
-                    refreshPersonLabels();
-                    renderOtherIncome();
-                    renderFixedPayments();
-                    updateSummaries();
-                    updateOverview();
-                    showToast('✅ Data imported');
+                    location.reload(); // Reload to fully apply all settings and data
+                    showToast('✅ Data imported. Reloading...');
                 } catch (err) {
-                    showToast('Invalid backup file', 'error');
+                    showToast('Invalid backup file. Error: ' + err.message, 'error');
                 }
             };
             reader.readAsText(file);
         }
 
         function clearAllData() {
-            if (!confirm('Clear all expenses and settings?')) return;
+            if (!confirm('WARNING: This will clear all expenses and settings permanently. Are you sure?')) return;
             localStorage.removeItem('coupleExpenseTrackerV3');
             location.reload();
         }
@@ -1921,18 +1995,44 @@
             if (saved) {
                 try {
                     const parsed = JSON.parse(saved);
+                    // Deep merge for settings
                     appState = {
                         ...appState,
                         ...parsed,
-                        settings: { ...appState.settings, ...(parsed.settings || {}) }
+                        settings: { 
+                            ...appState.settings, 
+                            ...(parsed.settings || {}) 
+                        },
+                        // Ensure arrays are initialized if not present
+                        otherIncome: parsed.otherIncome || [],
+                        fixedPayments: parsed.fixedPayments || []
                     };
-                } catch (e) {}
+                } catch (e) {
+                    showToast('Error loading data from storage.', 'error');
+                }
             }
-            // apply visual settings
+            // Apply all custom settings on load
             applyTheme();
             applyFontSettings();
             applyCoverPhoto();
             applyHeaderText();
+            
+            // Set input values from state
+            document.getElementById('monthlyBudget').value = appState.monthlyBudget || '';
+            document.getElementById('husbandIncome').value = document.getElementById('husbandIncome').value || '';
+            document.getElementById('wifeIncome').value = document.getElementById('wifeIncome').value || '';
+            
+            // Re-apply filter visuals
+            const filterButton = document.querySelector(`.filter-btn[onclick*="'${appState.dateFilter}'"]`);
+            if (filterButton) {
+                document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+                filterButton.classList.add('active');
+                if (appState.dateFilter === 'custom' && appState.customDateRange) {
+                    document.getElementById('customDateFilter').style.display = 'block';
+                    document.getElementById('filterFromDate').value = appState.customDateRange.from;
+                    document.getElementById('filterToDate').value = appState.customDateRange.to;
+                }
+            }
         }
 
         // ==================== TOAST ====================
