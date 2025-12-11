@@ -878,6 +878,45 @@
                 <div class="summary-label" id="budgetStatusText" style="margin-top: 8px;"></div>
                 <div class="summary-label" id="budgetReminderText" style="margin-top: 4px; color: var(--danger);"></div>
             </div>
+                        <div class="card">
+                <h3>Other Income Sources</h3>
+                <div class="form-group">
+                    <label class="form-label">Add Extra Income</label>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <input type="text" class="form-input" id="otherIncomeDesc" placeholder="e.g., Freelance, Rent">
+                        </div>
+                        <div class="form-group">
+                            <input type="number" class="form-input" id="otherIncomeAmount" placeholder="Amount (₹)" step="0.01" min="0">
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-outline btn-small" onclick="addOtherIncome()">Add Income</button>
+                </div>
+                <div id="otherIncomeList"></div>
+            </div>
+                        <div class="card">
+                <h3>Monthly Fixed Payments</h3>
+                <div class="form-group">
+                    <label class="form-label">Add Monthly Payment</label>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <input type="text" class="form-input" id="fixedPayName" placeholder="e.g., Rent, Car EMI">
+                        </div>
+                        <div class="form-group">
+                            <input type="number" class="form-input" id="fixedPayAmount" placeholder="Amount (₹)" step="0.01" min="0">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Due Day of Month</label>
+                            <input type="number" class="form-input" id="fixedPayDay" placeholder="1-31" min="1" max="31">
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-outline btn-small" onclick="addFixedPayment()">Add Payment</button>
+                </div>
+                <div id="fixedPaymentsList" style="margin-top: 12px;"></div>
+                <div id="fixedPaymentsReminder" class="summary-label" style="margin-top: 8px;"></div>
+            </div>
 
             <div class="summary-grid">
                 <div class="summary-card">
@@ -906,28 +945,18 @@
                 <div id="insightContainer"></div>
             </div>
 
-            <div class="card">
-                <h3>Spending Distribution</h3>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px;">
-                    <div>
-                        <div style="text-align: center; font-size: 12px; color: var(--text-light); margin-bottom: 8px;">Person 1 vs Person 2</div>
-                        <div style="width: 120px; height: 120px; border-radius: 50%; background: conic-gradient(var(--primary) 0deg 180deg, var(--secondary) 180deg 360deg); margin: 0 auto;"></div>
-                    </div>
-                    <div>
-                        <div style="margin-bottom: 12px;">
-                            <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
-                                <div style="width: 16px; height: 16px; background: var(--primary); border-radius: 3px;"></div>
-                                <span id="person1ShareLabel">Person 1: <strong id="husbandSharePercent">0%</strong></span>
-                            </div>
-                            <div style="display: flex; gap: 8px; align-items: center;">
-                                <div style="width: 16px; height: 16px; background: var(--secondary); border-radius: 3px;"></div>
-                                <span id="person2ShareLabel">Person 2: <strong id="wifeSharePercent">0%</strong></span>
-                            </div>
+<div class="card">
+                <h3>Category Pie Chart</h3>
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 8px;">
+                    <div id="pieChart" style="width: 200px; height: 200px; border-radius: 50%; background: conic-gradient(#e0e0e0 0deg 360deg); position: relative;">
+                        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:12px;color:var(--text-light);text-align:center;">
+                            No data
                         </div>
                     </div>
+                    <div id="pieLegend" style="font-size: 12px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;"></div>
                 </div>
             </div>
-        </div>
+                    </div>
     </section>
 
     <!-- SETTINGS SECTION -->
@@ -1080,7 +1109,9 @@
             },
             dateFilter: 'month',
             customDateRange: null,
-            monthlyBudget: 0
+            monthlyBudget: 0,
+            otherIncome: [],
+            fixedPayments: []
         };
 
         let editingExpenseId = null;
@@ -1806,6 +1837,7 @@ function deleteExpense(id) {
 
         // Initialize on load
         window.addEventListener('load', init);
+        
     </script>
 </body>
 </html>
