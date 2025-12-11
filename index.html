@@ -287,41 +287,6 @@
             background: var(--danger);
         }
 
-        /* TABS */
-        .tabs {
-            display: flex;
-            gap: 8px;
-            border-bottom: 2px solid var(--border);
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-        }
-
-        .tab-btn {
-            padding: 12px 16px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text-light);
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s;
-            margin-bottom: -2px;
-        }
-
-        .tab-btn.active {
-            color: var(--primary);
-            border-bottom-color: var(--primary);
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
         /* EXPENSE LIST */
         .expense-list {
             max-height: 600px;
@@ -457,6 +422,18 @@
 
         tr:hover {
             background: rgba(var(--primary-rgb), 0.05);
+        }
+
+        /* PIE LEGEND */
+        .pie-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .pie-legend-color {
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
         }
 
         /* SETTINGS */
@@ -614,30 +591,6 @@
             display: none;
         }
 
-        /* RESPONSIVE */
-        @media (max-width: 600px) {
-            .header h1 {
-                font-size: 22px;
-            }
-
-            .summary-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-
-            .nav {
-                justify-content: space-between;
-            }
-
-            .nav-btn {
-                flex: 1;
-                min-width: 80px;
-            }
-        }
-
         /* DARK MODE */
         [data-theme="dark"] {
             --text: #e0e0e0;
@@ -663,23 +616,38 @@
         [data-theme="dark"] .upload-area {
             border-color: #404040;
         }
+
+        /* RESPONSIVE */
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .nav {
+                justify-content: space-between;
+            }
+
+            .nav-btn {
+                flex: 1;
+                min-width: 80px;
+            }
+        }
     </style>
 </head>
 <body>
-
     <!-- HEADER -->
     <div class="header" id="header">
         <div class="header-content">
             <h1>💑 Couple Expense Tracker</h1>
             <p id="headerSubtitle">Manage your finances together</p>
-        </div>
-    </div>
-
-    <!-- REMINDER BANNER -->
-    <div id="reminderBanner" class="card" style="margin: 8px 16px; border-left: 4px solid var(--accent); display: none;">
-        <div style="font-size: 14px;">
-            🔔 Don’t forget to log today’s expenses.
-            <button class="btn btn-small btn-outline" style="float: right;" onclick="dismissReminder()">Got it</button>
         </div>
     </div>
 
@@ -865,6 +833,20 @@
                         <input type="number" class="form-input" id="wifeIncome" placeholder="0" step="0.01" min="0" oninput="updateOverview()">
                     </div>
                 </div>
+
+                <div class="form-group">
+                    <label class="form-label">Other Income Sources</label>
+                    <div id="otherIncomeList"></div>
+                    <div class="form-row" style="margin-top:8px;">
+                        <div class="form-group">
+                            <input type="text" class="form-input" id="otherIncomeDesc" placeholder="e.g., Freelance, Rent">
+                        </div>
+                        <div class="form-group">
+                            <input type="number" class="form-input" id="otherIncomeAmount" placeholder="Amount (₹)" step="0.01" min="0">
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-outline btn-small" onclick="addOtherIncome()">Add Income</button>
+                </div>
             </div>
 
             <div class="card">
@@ -878,23 +860,8 @@
                 <div class="summary-label" id="budgetStatusText" style="margin-top: 8px;"></div>
                 <div class="summary-label" id="budgetReminderText" style="margin-top: 4px; color: var(--danger);"></div>
             </div>
-                        <div class="card">
-                <h3>Other Income Sources</h3>
-                <div class="form-group">
-                    <label class="form-label">Add Extra Income</label>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <input type="text" class="form-input" id="otherIncomeDesc" placeholder="e.g., Freelance, Rent">
-                        </div>
-                        <div class="form-group">
-                            <input type="number" class="form-input" id="otherIncomeAmount" placeholder="Amount (₹)" step="0.01" min="0">
-                        </div>
-                    </div>
-                    <button type="button" class="btn btn-outline btn-small" onclick="addOtherIncome()">Add Income</button>
-                </div>
-                <div id="otherIncomeList"></div>
-            </div>
-                        <div class="card">
+
+            <div class="card">
                 <h3>Monthly Fixed Payments</h3>
                 <div class="form-group">
                     <label class="form-label">Add Monthly Payment</label>
@@ -914,6 +881,7 @@
                     </div>
                     <button type="button" class="btn btn-outline btn-small" onclick="addFixedPayment()">Add Payment</button>
                 </div>
+
                 <div id="fixedPaymentsList" style="margin-top: 12px;"></div>
                 <div id="fixedPaymentsReminder" class="summary-label" style="margin-top: 8px;"></div>
             </div>
@@ -924,18 +892,18 @@
                     <div class="summary-amount" id="combinedIncome">₹0</div>
                 </div>
                 <div class="summary-card">
-                    <div class="summary-label">Total Expenses</div>
+                    <div class="summary-label">Total Expenses (This Range)</div>
                     <div class="summary-amount" id="monthlyTotalExpenses">₹0</div>
                 </div>
             </div>
 
             <div class="summary-grid">
                 <div class="summary-card">
-                    <div class="summary-label">Estimated Savings</div>
+                    <div class="summary-label">Money Left (after bills)</div>
                     <div class="summary-amount" id="estimatedSavings">₹0</div>
                 </div>
                 <div class="summary-card">
-                    <div class="summary-label">Savings %</div>
+                    <div class="summary-label">Left % of Income</div>
                     <div class="summary-amount" id="savingsPercent">0%</div>
                 </div>
             </div>
@@ -945,7 +913,7 @@
                 <div id="insightContainer"></div>
             </div>
 
-<div class="card">
+            <div class="card">
                 <h3>Category Pie Chart</h3>
                 <div style="display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 8px;">
                     <div id="pieChart" style="width: 200px; height: 200px; border-radius: 50%; background: conic-gradient(#e0e0e0 0deg 360deg); position: relative;">
@@ -956,9 +924,8 @@
                     <div id="pieLegend" style="font-size: 12px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;"></div>
                 </div>
             </div>
-                    </div>
+        </div>
     </section>
-
     <!-- SETTINGS SECTION -->
     <section id="settings" class="section">
         <div class="container">
@@ -1129,10 +1096,13 @@
             applyTheme();
             applyFontSettings();
             refreshPersonLabels();
+            renderOtherIncome();
+            renderFixedPayments();
             updateSummaries();
             updateOverview();
-            checkReminderBanner();
         }
+
+        document.addEventListener('DOMContentLoaded', init);
 
         // ==================== SECTION SWITCHING ====================
         function switchSection(sectionId) {
@@ -1198,7 +1168,6 @@
             resetExpenseForm();
             updateSummaries();
             updateOverview();
-            checkReminderBanner();
         }
 
         function startEditExpense(id) {
@@ -1222,6 +1191,16 @@
             editingExpenseId = null;
             const submitBtn = document.querySelector('#add-expense form button[type="submit"]');
             if (submitBtn) submitBtn.textContent = 'Add Expense';
+        }
+
+        function deleteExpense(id) {
+            if (!confirm('Delete this expense?')) return;
+
+            appState.expenses = appState.expenses.filter(e => e.id !== id);
+            saveToStorage();
+            updateSummaries();
+            updateOverview();
+            showToast('🗑️ Expense deleted');
         }
 
         function resetExpenseForm() {
@@ -1358,47 +1337,190 @@
                 else effectivePerson = exp.person;
 
                 const item = `<div class="expense-item">
-    <div class="expense-item-left">
-        <div class="expense-date">${new Date(exp.date).toLocaleDateString('en-IN')}</div>
-        <div class="expense-description">${exp.note || 'No description'}</div>
-        <span class="expense-category">${exp.category}</span>
-    </div>
-    <div style="text-align: right;">
-        <div class="expense-amount">${formatCurrency(exp.amount)}</div>
-        <div class="expense-person">${effectivePerson}</div>
-        <button class="btn btn-small btn-outline" style="margin-top: 6px; margin-right: 4px;" onclick="startEditExpense(${exp.id})">Edit</button>
-        <button class="btn btn-small btn-danger" style="margin-top: 6px;" onclick="deleteExpense(${exp.id})">Delete</button>
-    </div>
-</div>`;
+                    <div class="expense-item-left">
+                        <div class="expense-date">${new Date(exp.date).toLocaleDateString('en-IN')}</div>
+                        <div class="expense-description">${exp.note || 'No description'}</div>
+                        <span class="expense-category">${exp.category}</span>
+                    </div>
+                    <div style="text-align: right;">
+                        <div class="expense-amount">${formatCurrency(exp.amount)}</div>
+                        <div class="expense-person">${effectivePerson}</div>
+                        <button class="btn btn-small btn-outline" style="margin-top: 6px; margin-right: 4px;" onclick="startEditExpense(${exp.id})">Edit</button>
+                        <button class="btn btn-small btn-danger" style="margin-top: 6px;" onclick="deleteExpense(${exp.id})">Delete</button>
+                    </div>
+                </div>`;
                 expenseList.innerHTML += item;
             });
+
+            updatePieChart();
         }
 
         function formatCurrency(amount) {
             return '₹' + amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
         }
 
-        // ==================== OVERVIEW ====================
+        // ==================== PIE CHART ====================
+        function updatePieChart() {
+            const filtered = getFilteredExpenses();
+            const categoryMap = {};
+            let total = 0;
+
+            filtered.forEach(exp => {
+                if (!categoryMap[exp.category]) categoryMap[exp.category] = 0;
+                categoryMap[exp.category] += exp.amount;
+                total += exp.amount;
+            });
+
+            const pie = document.getElementById('pieChart');
+            const legend = document.getElementById('pieLegend');
+            if (!pie || !legend) return;
+
+            if (total === 0) {
+                pie.style.background = 'conic-gradient(#e0e0e0 0deg 360deg)';
+                pie.innerHTML = `<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:12px;color:var(--text-light);text-align:center;">No data</div>`;
+                legend.innerHTML = '';
+                return;
+            }
+
+            const colors = ['#e91e63','#2196f3','#ff9800','#4caf50','#9c27b0','#00bcd4','#795548','#3f51b5','#8bc34a','#f44336'];
+            let startAngle = 0;
+            let segments = [];
+            let colorIndex = 0;
+            legend.innerHTML = '';
+
+            Object.entries(categoryMap).forEach(([cat, amount]) => {
+                const value = amount;
+                const angle = (value / total) * 360;
+                const endAngle = startAngle + angle;
+                const color = colors[colorIndex % colors.length];
+                segments.push(`${color} ${startAngle}deg ${endAngle}deg`);
+                colorIndex++;
+
+                const percent = ((value / total) * 100).toFixed(1);
+                const legendItem = document.createElement('div');
+                legendItem.className = 'pie-legend-item';
+                legendItem.innerHTML = `<span class="pie-legend-color" style="background:${color};"></span>${cat} (${percent}%)`;
+                legend.appendChild(legendItem);
+
+                startAngle = endAngle;
+            });
+
+            pie.style.background = `conic-gradient(${segments.join(',')})`;
+            pie.innerHTML = '';
+        }
+
+        // ==================== OTHER INCOME ====================
+        function addOtherIncome() {
+            const desc = document.getElementById('otherIncomeDesc').value.trim();
+            const amt = parseFloat(document.getElementById('otherIncomeAmount').value);
+            if (!desc || !amt || amt <= 0) {
+                showToast('Enter description and amount for other income', 'error');
+                return;
+            }
+            appState.otherIncome.push({ id: Date.now(), desc, amount: amt });
+            document.getElementById('otherIncomeDesc').value = '';
+            document.getElementById('otherIncomeAmount').value = '';
+            saveToStorage();
+            renderOtherIncome();
+            updateOverview();
+        }
+
+        function removeOtherIncome(id) {
+            appState.otherIncome = appState.otherIncome.filter(i => i.id !== id);
+            saveToStorage();
+            renderOtherIncome();
+            updateOverview();
+        }
+
+        function renderOtherIncome() {
+            const container = document.getElementById('otherIncomeList');
+            if (!container) return;
+            if (!appState.otherIncome || appState.otherIncome.length === 0) {
+                container.innerHTML = '<div style="font-size:12px;color:var(--text-light);">No extra income added</div>';
+                return;
+            }
+            container.innerHTML = '';
+            appState.otherIncome.forEach(i => {
+                const row = document.createElement('div');
+                row.style.display = 'flex';
+                row.style.justifyContent = 'space-between';
+                row.style.alignItems = 'center';
+                row.style.fontSize = '12px';
+                row.style.marginBottom = '4px';
+                row.innerHTML = `
+                    <span>${i.desc} - ${formatCurrency(i.amount)}</span>
+                    <button class="btn btn-small btn-outline" onclick="removeOtherIncome(${i.id})">✕</button>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        // ==================== FIXED PAYMENTS ====================
+        function addFixedPayment() {
+            const name = document.getElementById('fixedPayName').value.trim();
+            const amount = parseFloat(document.getElementById('fixedPayAmount').value);
+            const day = parseInt(document.getElementById('fixedPayDay').value, 10);
+
+            if (!name || !amount || amount <= 0 || !day || day < 1 || day > 31) {
+                showToast('Enter name, amount and valid day (1–31)', 'error');
+                return;
+            }
+
+            appState.fixedPayments.push({ id: Date.now(), name, amount, day });
+            document.getElementById('fixedPayName').value = '';
+            document.getElementById('fixedPayAmount').value = '';
+            document.getElementById('fixedPayDay').value = '';
+            saveToStorage();
+            renderFixedPayments();
+            updateOverview();
+        }
+
+        function removeFixedPayment(id) {
+            appState.fixedPayments = appState.fixedPayments.filter(p => p.id !== id);
+            saveToStorage();
+            renderFixedPayments();
+            updateOverview();
+        }
+
+        function renderFixedPayments() {
+            const container = document.getElementById('fixedPaymentsList');
+            if (!container) return;
+            if (!appState.fixedPayments || appState.fixedPayments.length === 0) {
+                container.innerHTML = '<div style="font-size:12px;color:var(--text-light);">No monthly payments added</div>';
+                return;
+            }
+            container.innerHTML = '';
+            appState.fixedPayments.forEach(p => {
+                const row = document.createElement('div');
+                row.style.display = 'flex';
+                row.style.justifyContent = 'space-between';
+                row.style.alignItems = 'center';
+                row.style.fontSize = '12px';
+                row.style.marginBottom = '4px';
+                row.innerHTML = `
+                    <span>${p.name} (Day ${p.day}) - ${formatCurrency(p.amount)}</span>
+                    <button class="btn btn-small btn-outline" onclick="removeFixedPayment(${p.id})">✕</button>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        // ==================== OVERVIEW & BUDGET ====================
         function saveBudgetAndUpdate() {
             const value = parseFloat(document.getElementById('monthlyBudget').value) || 0;
             appState.monthlyBudget = value;
             saveToStorage();
             updateOverview();
         }
-function deleteExpense(id) {
-    if (!confirm('Delete this expense?')) return;
 
-    appState.expenses = appState.expenses.filter(e => e.id !== id);
-    saveToStorage();
-    updateSummaries();
-    updateOverview();
-    checkReminderBanner();
-    showToast('🗑️ Expense deleted');
-}
         function updateOverview() {
             const husbandIncome = parseFloat(document.getElementById('husbandIncome').value) || 0;
             const wifeIncome = parseFloat(document.getElementById('wifeIncome').value) || 0;
-            const combinedIncome = husbandIncome + wifeIncome;
+
+            let otherIncomeTotal = 0;
+            (appState.otherIncome || []).forEach(i => otherIncomeTotal += i.amount);
+
+            const combinedIncome = husbandIncome + wifeIncome + otherIncomeTotal;
 
             const monthExpenses = getFilteredExpenses();
             let monthlySpend = 0;
@@ -1406,7 +1528,11 @@ function deleteExpense(id) {
                 monthlySpend += exp.amount;
             });
 
-            const savings = combinedIncome - monthlySpend;
+            let fixedTotal = 0;
+            (appState.fixedPayments || []).forEach(p => fixedTotal += p.amount);
+
+            const totalPlannedOutflow = monthlySpend + fixedTotal;
+            const savings = combinedIncome - totalPlannedOutflow;
             const savingsPercent = combinedIncome > 0 ? ((savings / combinedIncome) * 100).toFixed(1) : 0;
 
             document.getElementById('combinedIncome').textContent = formatCurrency(combinedIncome);
@@ -1438,7 +1564,21 @@ function deleteExpense(id) {
                 }
             }
 
-            // Spending distribution
+            // Fixed payments reminder
+            const reminderEl = document.getElementById('fixedPaymentsReminder');
+            if (reminderEl) {
+                const today = new Date();
+                const dayToday = today.getDate();
+                const upcoming = (appState.fixedPayments || []).filter(p => p.day >= dayToday && p.day <= dayToday + 5);
+                if (upcoming.length > 0) {
+                    const names = upcoming.map(p => `${p.name} on ${p.day}`).join(', ');
+                    reminderEl.textContent = `Upcoming in 5 days: ${names}`;
+                } else {
+                    reminderEl.textContent = '';
+                }
+            }
+
+            // Spending distribution per person (for insights)
             let p1Spend = 0, p2Spend = 0, sharedSpend = 0;
             monthExpenses.forEach(exp => {
                 if (exp.person === 'Person1') p1Spend += exp.amount;
@@ -1446,17 +1586,8 @@ function deleteExpense(id) {
                 else if (exp.person === 'Both') sharedSpend += exp.amount;
             });
 
-            const p1Effective = p1Spend + (sharedSpend / 2);
-            const p2Effective = p2Spend + (sharedSpend / 2);
-            const totalEffective = p1Effective + p2Effective;
-
-            const p1Pct = totalEffective > 0 ? ((p1Effective / totalEffective) * 100).toFixed(0) : 0;
-            const p2Pct = totalEffective > 0 ? ((p2Effective / totalEffective) * 100).toFixed(0) : 0;
-
-            document.getElementById('husbandSharePercent').textContent = p1Pct + '%';
-            document.getElementById('wifeSharePercent').textContent = p2Pct + '%';
-
             generateInsights(p1Spend, p2Spend, sharedSpend, monthlySpend, combinedIncome);
+            updatePieChart();
         }
 
         function generateInsights(p1Spend, p2Spend, sharedSpend, totalSpend, income) {
@@ -1480,7 +1611,7 @@ function deleteExpense(id) {
 
             if (income > 0) {
                 const spendingRatio = ((totalSpend / income) * 100).toFixed(0);
-                insights.push(`💰 You've spent <strong>${spendingRatio}%</strong> of your combined income this month.`);
+                insights.push(`💰 You've spent <strong>${spendingRatio}%</strong> of your combined income in this period.`);
                 if (spendingRatio < 50) {
                     insights.push(`🎉 Great job! You're saving more than 50% of your income!`);
                 } else if (spendingRatio > 80) {
@@ -1504,27 +1635,205 @@ function deleteExpense(id) {
             }
         }
 
-        // ==================== REMINDER BANNER ====================
-        function checkReminderBanner() {
-            const today = new Date().toISOString().split('T')[0];
-            const hasTodayExpense = appState.expenses.some(exp => exp.date === today);
-            const dismissed = localStorage.getItem('reminderDismissed') === today;
+        // ==================== THEME & FONT ====================
+        function renderColorPickers() {
+            const primaryPicker = document.getElementById('primaryColorPicker');
+            const secondaryPicker = document.getElementById('secondaryColorPicker');
+            const accentPicker = document.getElementById('accentColorPicker');
 
-            const banner = document.getElementById('reminderBanner');
-            if (!banner) return;
+            colorPresets.forEach(color => {
+                const p = document.createElement('div');
+                p.className = 'color-swatch';
+                p.style.backgroundColor = color;
+                p.onclick = () => setPrimaryColor(color);
+                if (color === appState.settings.primaryColor) p.classList.add('selected');
+                primaryPicker.appendChild(p);
 
-            if (!hasTodayExpense && !dismissed) {
-                banner.style.display = 'block';
+                const s = document.createElement('div');
+                s.className = 'color-swatch';
+                s.style.backgroundColor = color;
+                s.onclick = () => setSecondaryColor(color);
+                if (color === appState.settings.secondaryColor) s.classList.add('selected');
+                secondaryPicker.appendChild(s);
+
+                const a = document.createElement('div');
+                a.className = 'color-swatch';
+                a.style.backgroundColor = color;
+                a.onclick = () => setAccentColor(color);
+                if (color === appState.settings.accentColor) a.classList.add('selected');
+                accentPicker.appendChild(a);
+            });
+        }
+
+        function setTheme(theme) {
+            appState.settings.theme = theme;
+            saveToStorage();
+            applyTheme();
+        }
+
+        function applyTheme() {
+            if (appState.settings.theme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                document.getElementById('themeDark').classList.add('btn-secondary');
             } else {
-                banner.style.display = 'none';
+                document.documentElement.removeAttribute('data-theme');
+                document.getElementById('themeLight').classList.add('btn-secondary');
             }
         }
 
-        function dismissReminder() {
-            const today = new Date().toISOString().split('T')[0];
-            localStorage.setItem('reminderDismissed', today);
-            const banner = document.getElementById('reminderBanner');
-            if (banner) banner.style.display = 'none';
+        function setPrimaryColor(color) {
+            appState.settings.primaryColor = color;
+            saveToStorage();
+            document.documentElement.style.setProperty('--primary', color);
+            document.documentElement.style.setProperty('--primary-rgb', hexToRgb(color));
+        }
+
+        function setSecondaryColor(color) {
+            appState.settings.secondaryColor = color;
+            saveToStorage();
+            document.documentElement.style.setProperty('--secondary', color);
+            document.documentElement.style.setProperty('--secondary-rgb', hexToRgb(color));
+        }
+
+        function setAccentColor(color) {
+            appState.settings.accentColor = color;
+            saveToStorage();
+            document.documentElement.style.setProperty('--accent', color);
+            document.documentElement.style.setProperty('--accent-rgb', hexToRgb(color));
+        }
+
+        function setFontStyle(style) {
+            appState.settings.fontStyle = style;
+            saveToStorage();
+            applyFontSettings();
+        }
+
+        function setFontSize(size) {
+            appState.settings.fontSize = size;
+            saveToStorage();
+            applyFontSettings();
+        }
+
+        function applyFontSettings() {
+            const body = document.body;
+            body.classList.remove('font-clean', 'font-playful', 'font-serif');
+            if (appState.settings.fontStyle === 'playful') {
+                body.style.fontFamily = "'Comic Sans MS', 'Trebuchet MS', cursive";
+            } else if (appState.settings.fontStyle === 'serif') {
+                body.style.fontFamily = "'Georgia', 'Times New Roman', serif";
+            } else {
+                body.style.fontFamily = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+            }
+
+            if (appState.settings.fontSize === 'small') {
+                body.style.fontSize = '13px';
+            } else if (appState.settings.fontSize === 'large') {
+                body.style.fontSize = '17px';
+            } else {
+                body.style.fontSize = '15px';
+            }
+
+            const preview = document.getElementById('fontPreview');
+            if (preview) {
+                preview.className = 'font-preview ' + appState.settings.fontStyle;
+            }
+        }
+
+        function hexToRgb(hex) {
+            const cleanHex = hex.replace('#', '');
+            const bigint = parseInt(cleanHex, 16);
+            const r = (bigint >> 16) & 255;
+            const g = (bigint >> 8) & 255;
+            const b = bigint & 255;
+            return `${r}, ${g}, ${b}`;
+        }
+
+        // ==================== HEADER PHOTO & TEXT ====================
+        function uploadCoverPhoto(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                appState.settings.coverPhotoData = e.target.result;
+                saveToStorage();
+                applyCoverPhoto();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function applyCoverPhoto() {
+            const header = document.getElementById('header');
+            const preview = document.getElementById('coverPhotoPreview');
+            if (appState.settings.coverPhotoData) {
+                header.style.backgroundImage = `url(${appState.settings.coverPhotoData})`;
+                if (preview) {
+                    preview.src = appState.settings.coverPhotoData;
+                    preview.style.display = 'block';
+                }
+            } else {
+                header.style.backgroundImage = '';
+                if (preview) {
+                    preview.style.display = 'none';
+                }
+            }
+        }
+
+        function updateHeaderText() {
+            const titleInput = document.getElementById('headerTitle').value.trim();
+            const subtitleInput = document.getElementById('headerSubtitleText').value.trim();
+
+            if (titleInput) appState.settings.headerTitle = titleInput;
+            if (subtitleInput) appState.settings.headerSubtitle = subtitleInput;
+
+            saveToStorage();
+            applyHeaderText();
+        }
+
+        function applyHeaderText() {
+            const h1 = document.querySelector('#header h1');
+            const subtitle = document.getElementById('headerSubtitle');
+            if (h1) h1.textContent = appState.settings.headerTitle || '💑 Couple Expense Tracker';
+            if (subtitle) subtitle.textContent = appState.settings.headerSubtitle || 'Manage your finances together';
+        }
+
+        function clearHeader() {
+            appState.settings.coverPhotoData = null;
+            saveToStorage();
+            applyCoverPhoto();
+        }
+
+        // ==================== PERSON NAMES ====================
+        function updatePersonNames() {
+            const p1 = document.getElementById('person1NameInput').value.trim();
+            const p2 = document.getElementById('person2NameInput').value.trim();
+            if (p1) appState.settings.person1Name = p1;
+            if (p2) appState.settings.person2Name = p2;
+            saveToStorage();
+            refreshPersonLabels();
+            updateSummaries();
+            updateOverview();
+        }
+
+        function refreshPersonLabels() {
+            const p1Name = appState.settings.person1Name || 'Person 1';
+            const p2Name = appState.settings.person2Name || 'Person 2';
+
+            const person1Label = document.getElementById('person1Label');
+            const person2Label = document.getElementById('person2Label');
+
+            if (person1Label) person1Label.textContent = `${p1Name} Spent`;
+            if (person2Label) person2Label.textContent = `${p2Name} Spent`;
+
+            const personSelect = document.getElementById('expensePerson');
+            if (personSelect) {
+                personSelect.options[1].textContent = `👤 ${p1Name}`;
+                personSelect.options[2].textContent = `👤 ${p2Name}`;
+            }
+
+            const p1IncomeLabel = document.querySelector('label[for="husbandIncome"]');
+            const p2IncomeLabel = document.querySelector('label[for="wifeIncome"]');
+            if (p1IncomeLabel) p1IncomeLabel.textContent = `${p1Name} Income (₹)`;
+            if (p2IncomeLabel) p2IncomeLabel.textContent = `${p2Name} Income (₹)`;
         }
 
         // ==================== EXPORT / IMPORT ====================
@@ -1563,281 +1872,87 @@ function deleteExpense(id) {
             a.download = `couple-expense-backup-${new Date().toISOString().split('T')[0]}.json`;
             a.click();
             window.URL.revokeObjectURL(url);
-            showToast('✅ Data exported successfully!');
+            showToast('✅ Backup exported');
         }
 
         function importData() {
             document.getElementById('importInput').click();
         }
 
-        function handleImport(e) {
-            const file = e.target.files[0];
+        function handleImport(event) {
+            const file = event.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
-            reader.onload = (event) => {
+            reader.onload = function(e) {
                 try {
-                    const imported = JSON.parse(event.target.result);
-                    appState = { ...appState, ...imported };
+                    const imported = JSON.parse(e.target.result);
+                    appState = imported;
                     saveToStorage();
                     applyTheme();
                     applyFontSettings();
+                    applyCoverPhoto();
+                    applyHeaderText();
                     refreshPersonLabels();
-                    showToast('✅ Data imported successfully!');
+                    renderOtherIncome();
+                    renderFixedPayments();
                     updateSummaries();
                     updateOverview();
-                    checkReminderBanner();
+                    showToast('✅ Data imported');
                 } catch (err) {
-                    showToast('❌ Invalid file format', 'error');
+                    showToast('Invalid backup file', 'error');
                 }
             };
             reader.readAsText(file);
         }
 
         function clearAllData() {
-            if (confirm('⚠️ This will delete ALL expenses and settings. Are you sure?')) {
-                appState = {
-                    expenses: [],
-                    settings: {
-                        theme: 'light',
-                        primaryColor: '#e91e63',
-                        secondaryColor: '#2196f3',
-                        accentColor: '#ff6f00',
-                        fontStyle: 'clean',
-                        fontSize: 'medium',
-                        coverPhotoData: null,
-                        headerTitle: 'Couple Expense Tracker',
-                        headerSubtitle: 'Manage your finances together',
-                        person1Name: 'Person 1',
-                        person2Name: 'Person 2'
-                    },
-                    dateFilter: 'month',
-                    customDateRange: null,
-                    monthlyBudget: 0
-                };
-                saveToStorage();
-                applyTheme();
-                applyFontSettings();
-                refreshPersonLabels();
-                showToast('🗑️ All data cleared');
-                updateSummaries();
-                updateOverview();
-                checkReminderBanner();
-            }
-        }
-
-        // ==================== THEME & SETTINGS ====================
-        function renderColorPickers() {
-            const pickers = ['primaryColorPicker', 'secondaryColorPicker', 'accentColorPicker'];
-            const settingKeys = ['primaryColor', 'secondaryColor', 'accentColor'];
-
-            pickers.forEach((pickerId, idx) => {
-                const settingKey = settingKeys[idx];
-                const container = document.getElementById(pickerId);
-                container.innerHTML = '';
-
-                colorPresets.forEach(color => {
-                    const swatch = document.createElement('div');
-                    swatch.className = 'color-swatch';
-                    swatch.style.backgroundColor = color;
-                    if (appState.settings[settingKey] === color) swatch.classList.add('selected');
-
-                    swatch.onclick = () => {
-                        appState.settings[settingKey] = color;
-                        saveToStorage();
-                        applyTheme();
-                        renderColorPickers();
-                    };
-
-                    container.appendChild(swatch);
-                });
-            });
-        }
-
-        function setTheme(theme) {
-            appState.settings.theme = theme;
-            document.body.setAttribute('data-theme', theme);
-            document.getElementById('themeLight').classList.toggle('active', theme === 'light');
-            document.getElementById('themeDark').classList.toggle('active', theme === 'dark');
-            saveToStorage();
-        }
-
-        function setFontStyle(style) {
-            appState.settings.fontStyle = style;
-            applyFontSettings();
-            saveToStorage();
-        }
-
-        function setFontSize(size) {
-            appState.settings.fontSize = size;
-            applyFontSettings();
-            saveToStorage();
-        }
-
-        function applyFontSettings() {
-            const fontMap = {
-                clean: "'Segoe UI', Tahoma, sans-serif",
-                playful: "'Comic Sans MS', 'Trebuchet MS', cursive",
-                serif: "'Georgia', 'Times New Roman', serif"
-            };
-
-            const sizeMap = {
-                small: '13px',
-                medium: '14px',
-                large: '16px'
-            };
-
-            const fontFamily = fontMap[appState.settings.fontStyle] || fontMap.clean;
-            const fontSize = sizeMap[appState.settings.fontSize] || sizeMap.medium;
-
-            document.documentElement.style.setProperty('--font-family', fontFamily);
-            document.documentElement.style.setProperty('--font-size-base', fontSize);
-
-            document.getElementById('fontPreview').className = `font-preview ${appState.settings.fontStyle}`;
-            document.getElementById('fontClean').classList.toggle('active', appState.settings.fontStyle === 'clean');
-            document.getElementById('fontPlayful').classList.toggle('active', appState.settings.fontStyle === 'playful');
-            document.getElementById('fontSerif').classList.toggle('active', appState.settings.fontStyle === 'serif');
-
-            document.getElementById('fontSmall').classList.toggle('active', appState.settings.fontSize === 'small');
-            document.getElementById('fontMedium').classList.toggle('active', appState.settings.fontSize === 'medium');
-            document.getElementById('fontLarge').classList.toggle('active', appState.settings.fontSize === 'large');
-        }
-
-        function applyTheme() {
-            document.documentElement.style.setProperty('--primary', appState.settings.primaryColor);
-            document.documentElement.style.setProperty('--secondary', appState.settings.secondaryColor);
-            document.documentElement.style.setProperty('--accent', appState.settings.accentColor);
-
-            document.body.setAttribute('data-theme', appState.settings.theme);
-            setTheme(appState.settings.theme);
-            renderColorPickers();
-
-            if (appState.settings.coverPhotoData) {
-                document.getElementById('header').style.backgroundImage = `url('${appState.settings.coverPhotoData}')`;
-                document.getElementById('coverPhotoPreview').src = appState.settings.coverPhotoData;
-                document.getElementById('coverPhotoPreview').style.display = 'block';
-            } else {
-                document.getElementById('header').style.backgroundImage = 'linear-gradient(135deg, var(--primary), var(--secondary))';
-                document.getElementById('coverPhotoPreview').style.display = 'none';
-            }
-        }
-
-        function uploadCoverPhoto(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                appState.settings.coverPhotoData = event.target.result;
-                saveToStorage();
-                document.getElementById('header').style.backgroundImage = `url('${event.target.result}')`;
-                document.getElementById('coverPhotoPreview').src = event.target.result;
-                document.getElementById('coverPhotoPreview').style.display = 'block';
-                showToast('✅ Cover photo updated!');
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function clearHeader() {
-            if (confirm('Remove the header photo?')) {
-                appState.settings.coverPhotoData = null;
-                saveToStorage();
-                document.getElementById('header').style.backgroundImage = 'linear-gradient(135deg, var(--primary), var(--secondary))';
-                document.getElementById('coverPhotoPreview').style.display = 'none';
-                showToast('✅ Header photo removed');
-            }
-        }
-
-        function updateHeaderText() {
-            const title = document.getElementById('headerTitle').value || 'Couple Expense Tracker';
-            const subtitle = document.getElementById('headerSubtitleText').value || 'Manage your finances together';
-
-            appState.settings.headerTitle = title;
-            appState.settings.headerSubtitle = subtitle;
-
-            document.querySelector('.header h1').textContent = title;
-            document.getElementById('headerSubtitle').textContent = subtitle;
-
-            saveToStorage();
-        }
-
-        function updatePersonNames() {
-            const p1 = document.getElementById('person1NameInput').value || 'Person 1';
-            const p2 = document.getElementById('person2NameInput').value || 'Person 2';
-
-            appState.settings.person1Name = p1;
-            appState.settings.person2Name = p2;
-            saveToStorage();
-            refreshPersonLabels();
-            updateSummaries();
-            updateOverview();
-        }
-
-        function refreshPersonLabels() {
-            const p1 = appState.settings.person1Name || 'Person 1';
-            const p2 = appState.settings.person2Name || 'Person 2';
-
-            const person1Label = document.getElementById('person1Label');
-            const person2Label = document.getElementById('person2Label');
-            if (person1Label) person1Label.textContent = `${p1} Spent`;
-            if (person2Label) person2Label.textContent = `${p2} Spent`;
-
-            const personSelect = document.getElementById('expensePerson');
-            if (personSelect) {
-                personSelect.innerHTML = `
-                    <option value="">Select person</option>
-                    <option value="Person1">👤 ${p1}</option>
-                    <option value="Person2">👤 ${p2}</option>
-                    <option value="Both">👫 Both (Shared)</option>
-                `;
-            }
-
-            const share1 = document.getElementById('person1ShareLabel');
-            const share2 = document.getElementById('person2ShareLabel');
-            if (share1) share1.innerHTML = `${p1}: <strong id="husbandSharePercent">${document.getElementById('husbandSharePercent').textContent}</strong>`;
-            if (share2) share2.innerHTML = `${p2}: <strong id="wifeSharePercent">${document.getElementById('wifeSharePercent').textContent}</strong>`;
+            if (!confirm('Clear all expenses and settings?')) return;
+            localStorage.removeItem('coupleExpenseTrackerV3');
+            location.reload();
         }
 
         // ==================== STORAGE ====================
         function saveToStorage() {
-            localStorage.setItem('coupleExpenseTrackerApp', JSON.stringify(appState));
+            localStorage.setItem('coupleExpenseTrackerV3', JSON.stringify(appState));
         }
 
         function loadFromStorage() {
-            const saved = localStorage.getItem('coupleExpenseTrackerApp');
+            const saved = localStorage.getItem('coupleExpenseTrackerV3');
             if (saved) {
-                appState = JSON.parse(saved);
+                try {
+                    const parsed = JSON.parse(saved);
+                    appState = {
+                        ...appState,
+                        ...parsed,
+                        settings: { ...appState.settings, ...(parsed.settings || {}) }
+                    };
+                } catch (e) {}
             }
-
-            document.getElementById('headerTitle').value = appState.settings.headerTitle;
-            document.getElementById('headerSubtitleText').value = appState.settings.headerSubtitle;
-
-            if (document.getElementById('person1NameInput')) {
-                document.getElementById('person1NameInput').value = appState.settings.person1Name || 'Person 1';
-            }
-            if (document.getElementById('person2NameInput')) {
-                document.getElementById('person2NameInput').value = appState.settings.person2Name || 'Person 2';
-            }
-            if (document.getElementById('monthlyBudget')) {
-                document.getElementById('monthlyBudget').value = appState.monthlyBudget || 0;
-            }
+            // apply visual settings
+            applyTheme();
+            applyFontSettings();
+            applyCoverPhoto();
+            applyHeaderText();
         }
 
-        // ==================== UI HELPERS ====================
+        // ==================== TOAST ====================
+        let toastTimeout;
         function showToast(message, type = 'success') {
+            const existing = document.querySelector('.toast');
+            if (existing) existing.remove();
+
             const toast = document.createElement('div');
-            toast.className = `toast ${type === 'error' ? 'error' : ''}`;
+            toast.className = 'toast';
+            if (type === 'error') toast.classList.add('error');
             toast.textContent = message;
+
             document.body.appendChild(toast);
 
-            setTimeout(() => {
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
                 toast.remove();
             }, 3000);
         }
-
-        // Initialize on load
-        window.addEventListener('load', init);
-        
     </script>
 </body>
 </html>
