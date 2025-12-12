@@ -7,104 +7,287 @@
     <link rel="manifest" href="./manifest.json">
     <script src="./backup-manager.js"></script>
     <script src="./csv-utilities.js"></script>
+    <script src="./storage.js"></script>
+    <script src="./ui.js"></script>
     <link rel="stylesheet" href="./styles.css">
 </head>
 <body class="light-theme">
-    <div class="header">
-        <h1>💳 Couple Expense Tracker</h1>
-        <div class="header-controls">
-            <button id="themeToggle" class="btn btn-secondary">Toggle Theme</button>
+    <!-- HEADER -->
+    <div class="header" id="header">
+        <div class="header-content">
+            <h1>💑 Couple Expense Tracker</h1>
+            <p id="headerSubtitle">Manage your finances together</p>
         </div>
     </div>
 
-    <div class="container">
-        <div class="tab-container">
-            <button class="tab-btn active" data-tab="add-expense">Add Expense</button>
-            <button class="tab-btn" data-tab="summary">Summary</button>
-            <button class="tab-btn" data-tab="settings">Settings</button>
-        </div>
-
-        <!-- Add Expense Tab -->
-        <div class="tab-content active" data-tab-content="add-expense">
-            <form id="addExpenseForm">
-                <div class="form-group">
-                    <label for="description">Description:</label>
-                    <input type="text" id="description" name="description" placeholder="Enter expense description" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="amount">Amount (₹):</label>
-                    <input type="number" id="amount" name="amount" placeholder="Enter amount" step="0.01" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="category">Category:</label>
-                    <select id="category" name="category" required>
-                        <option value="">Select Category</option>
-                        <option value="Food">Food</option>
-                        <option value="Transport">Transport</option>
-                        <option value="Entertainment">Entertainment</option>
-                        <option value="Utilities">Utilities</option>
-                        <option value="Healthcare">Healthcare</option>
-                        <option value="Shopping">Shopping</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="date">Date:</label>
-                    <input type="date" id="date" name="date" required>
-                </div>
-
-                <button type="submit" class="btn btn-block">Add Expense</button>
-            </form>
-
-            <div id="expensesList"></div>
-        </div>
-
-        <!-- Summary Tab -->
-        <div class="tab-content" data-tab-content="summary">
-            <h2>Financial Summary</h2>
-            <div id="summaryContainer"></div>
-        </div>
-
-        <!-- Settings Tab -->
-        <div class="tab-content" data-tab-content="settings">
-            <h2>Settings & Data Management</h2>
-            
-            <div class="form-group">
-                <label>Theme:</label>
-                <p>Use the "Toggle Theme" button in the header to switch between light and dark mode.</p>
-            </div>
-
-            <div class="form-group">
-                <label>Data Management:</label>
-                <button id="exportBtn" class="btn btn-secondary">Export to JSON</button>
-                <button id="importCSVBtn" class="btn btn-secondary" onclick="document.getElementById('importCSVFile').click()">Import CSV</button>
-                <input type="file" id="importCSVFile" accept=".csv" style="display: none;" onchange="handleImportCSV(this)">
-                <button id="importBtn" class="btn btn-secondary" onclick="document.getElementById('importFile').click()">Import JSON</button>
-                <input type="file" id="importFile" accept=".json" style="display: none;">
-            </div>
-
-            <div class="form-group">
-                <label>Danger Zone:</label>
-                <button id="clearAllBtn" class="btn btn-danger">Clear All Expenses</button>
-            </div>
+    <!-- NAVIGATION -->
+    <div class="container" style="padding-top: 0">
+        <div class="nav">
+            <button class="nav-btn active" onclick="switchSection('add-expense')">➕ Add Expense</button>
+            <button class="nav-btn" onclick="switchSection('summaries')">📊 Summaries</button>
+            <button class="nav-btn" onclick="switchSection('overview')">👥 Overview</button>
+            <button class="nav-btn" onclick="switchSection('settings')">⚙️ Settings</button>
         </div>
     </div>
 
-    <!-- Load modules in correct order -->
-    <script src="./storage.js"></script>
-    <script src="./ui.js"></script>
+    <!-- ADD EXPENSE SECTION -->
+    <section id="add-expense" class="section active">
+        <div class="container">
+            <div class="card">
+                <h3>Add New Expense</h3>
+                <form onsubmit="addExpense(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Person *</label>
+                            <select class="form-select" id="expensePerson" required>
+                                <option value="">Select person</option>
+                                <option value="Person1">Person 1</option>
+                                <option value="Person2">Person 2</option>
+                                <option value="Both">Both (Shared)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Date *</label>
+                            <input type="date" class="form-input" id="expenseDate" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Amount (₹) *</label>
+                            <input type="number" class="form-input" id="expenseAmount" placeholder="0.00" step="0.01" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Category *</label>
+                            <select class="form-select" id="expenseCategory" required>
+                                <option value="">Select category</option>
+                                <option value="Food">Food</option>
+                                <option value="Transport">Transport</option>
+                                <option value="Entertainment">Entertainment</option>
+                                <option value="Utilities">Utilities</option>
+                                <option value="Healthcare">Healthcare</option>
+                                <option value="Shopping">Shopping</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Payment Mode *</label>
+                            <select class="form-select" id="expensePaymentMode" required>
+                                <option value="">Select mode</option>
+                                <option value="UPI">UPI</option>
+                                <option value="Card">Card</option>
+                                <option value="Cash">Cash</option>
+                                <option value="Netbanking">Netbanking</option>
+                                <option value="Wallet">Wallet</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Type</label>
+                            <select class="form-select" id="expenseType">
+                                <option value="Personal">Personal</option>
+                                <option value="Shared">Shared</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Description/Note</label>
+                        <input type="text" class="form-input" id="expenseNote" placeholder="e.g., Weekly groceries">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-bottom: 12px">Add Expense</button>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px">
+                        <button type="button" class="btn btn-outline" onclick="switchSection('summaries')">View Summary</button>
+                        <button type="button" class="btn btn-outline" onclick="resetExpenseForm()">Clear Form</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- SUMMARIES SECTION -->
+    <section id="summaries" class="section">
+        <div class="container">
+            <div class="card">
+                <h3>Filter Expenses</h3>
+                <div class="filter-group">
+                    <button class="filter-btn active" onclick="setDateFilter('today')">Today</button>
+                    <button class="filter-btn" onclick="setDateFilter('week')">This Week</button>
+                    <button class="filter-btn" onclick="setDateFilter('month')">This Month</button>
+                    <button class="filter-btn" onclick="toggleDatePickerFilter()">Custom</button>
+                </div>
+                <div id="customDateFilter" style="display: none; margin-top: 12px">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">From</label>
+                            <input type="date" class="form-input" id="filterFromDate">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">To</label>
+                            <input type="date" class="form-input" id="filterToDate">
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary btn-small" onclick="applyCustomDateFilter()" style="margin-top: 8px">Apply Filter</button>
+                </div>
+            </div>
+
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <div class="summary-label">PERSON 1 SPENT</div>
+                    <div class="summary-amount" id="person1Spend">₹0.00</div>
+                    <div class="summary-person">Including shared (50%)</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">PERSON 2 SPENT</div>
+                    <div class="summary-amount" id="person2Spend">₹0.00</div>
+                    <div class="summary-person">Including shared (50%)</div>
+                </div>
+            </div>
+
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <div class="summary-label">TOTAL SHARED</div>
+                    <div class="summary-amount" id="sharedExpense">₹0.00</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">GRAND TOTAL</div>
+                    <div class="summary-amount" id="grandTotal">₹0.00</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Category Breakdown</h3>
+                <div class="table-wrapper">
+                    <table id="categoryTable">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Amount</th>
+                                <th>Count</th>
+                                <th>%</th>
+                            </tr>
+                        </thead>
+                        <tbody id="categoryTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Recent Expenses</h3>
+                <div class="expense-list" id="expenseList"></div>
+            </div>
+
+            <div class="card">
+                <button class="btn btn-secondary" onclick="exportToCSV()">📥 Export as CSV</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- OVERVIEW SECTION -->
+    <section id="overview" class="section">
+        <div class="container">
+            <div class="card">
+                <h3>Monthly Payments</h3>
+                <div class="form-group">
+                    <label class="form-label">Date Range</label>
+                    <input type="text" class="form-input" id="monthlyPaymentsRange" placeholder="1-31" value="1-31">
+                </div>
+                <button class="btn btn-primary" style="margin-bottom: 12px">Add Payment</button>
+                <p style="color: #757575; font-size: 14px">No monthly payments added</p>
+            </div>
+
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <div class="summary-label">COMBINED INCOME</div>
+                    <div class="summary-amount" id="combinedIncome">₹0.00</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">TOTAL EXPENSES (THIS RANGE)</div>
+                    <div class="summary-amount" id="monthlyTotalExpenses">₹0.00</div>
+                </div>
+            </div>
+
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <div class="summary-label">MONEY LEFT (AFTER BILLS)</div>
+                    <div class="summary-amount" id="moneyLeft">₹0.00</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">LEFT % OF INCOME</div>
+                    <div class="summary-amount" id="leftPercent">0%</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>💡 Financial Insights</h3>
+                <p style="color: #757575">No data yet for insights</p>
+            </div>
+
+            <div class="card">
+                <h3>Category Pie Chart</h3>
+                <div style="text-align: center; padding: 40px">
+                    <div style="width: 200px; height: 200px; margin: 0 auto; background: #e0e0e0; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #757575">
+                        No data
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SETTINGS SECTION -->
+    <section id="settings" class="section">
+        <div class="container">
+            <div class="card">
+                <h3>Person Names</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Person 1 Name</label>
+                        <input type="text" class="form-input" id="person1Name" placeholder="Person 1" value="Person 1" oninput="updatePersonNames()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Person 2 Name</label>
+                        <input type="text" class="form-input" id="person2Name" placeholder="Person 2" value="Person 2" oninput="updatePersonNames()">
+                    </div>
+                </div>
+                <p style="color: #757575; font-size: 13px">These names will be used everywhere instead of fixed labels.</p>
+            </div>
+
+            <div class="card">
+                <h3>Data Management</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px">
+                    <button class="btn btn-secondary" onclick="exportData()" style="width: 100%">💾 Export Data</button>
+                    <button class="btn btn-outline" onclick="importData()" style="width: 100%">📁 Import Data</button>
+                </div>
+                <button class="btn btn-danger" onclick="clearAllData()" style="width: 100%">🗑️ Clear All Data</button>
+                <input type="file" id="importInput" accept=".json" onchange="handleImport(event)" style="display: none">
+            </div>
+        </div>
+    </section>
+
+    <!-- BOTTOM MOBILE NAV -->
+    <div class="bottom-nav">
+        <button class="bottom-nav-btn active" onclick="switchSection('add-expense')">
+            <div class="bottom-nav-icon">➕</div>
+            <div>Add</div>
+        </button>
+        <button class="bottom-nav-btn" onclick="switchSection('summaries')">
+            <div class="bottom-nav-icon">📊</div>
+            <div>Summary</div>
+        </button>
+        <button class="bottom-nav-btn" onclick="switchSection('overview')">
+            <div class="bottom-nav-icon">👥</div>
+            <div>Overview</div>
+        </button>
+        <button class="bottom-nav-btn" onclick="switchSection('settings')">
+            <div class="bottom-nav-icon">⚙️</div>
+            <div>Settings</div>
+        </button>
+    </div>
+
     <script src="./app.js"></script>
-    
-    <!-- Register service worker for PWA -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('./service-worker.js')
-                .then(reg => console.log('Service Worker registered'))
-                .catch(err => console.log('Service Worker registration failed:', err));
-        }
-    </script>
 </body>
 </html>
