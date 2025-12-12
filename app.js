@@ -5,6 +5,8 @@ const App = (() => {
 
   // Initialize app
   const init = async () => {
+        // Wait for storage to be ready
+    await new Promise(resolve => setTimeout(resolve, 500));
     setupEventListeners();
     await loadExpenses();
   };
@@ -161,6 +163,7 @@ const App = (() => {
   const updateDashboard = (expenses) => {
     const total = expenses.reduce((sum, expense) => sum + expense.amount, 0);
     const remaining = 50000 - total; // Assuming monthly budget of 50000
+        console.log('Updating dashboard:', {total: 50000, spent: total, remaining});
     UIModule.updateSummary(50000, total, remaining);
   };
 
@@ -181,4 +184,17 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => App.init());
 } else {
   App.init();
+
+  // Expose for debugging
+window.AppDebug = {
+  App,
+  StorageModule,
+  UIModule,
+  checkStatus: async () => {
+    const expenses = await StorageModule.getExpenses();
+    console.log('Expenses:', expenses);
+    console.log('Storage ready:', !!StorageModule);
+    console.log('UI ready:', !!UIModule);
+  }
+};
 }
