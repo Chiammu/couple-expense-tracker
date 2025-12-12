@@ -119,6 +119,31 @@ const App = (() => {
         }
     };
 
+        // Section switching
+        const switchSection = (sectionId, event) => {
+                    const sections = document.querySelectorAll('.section');
+                    sections.forEach(section => section.classList.add('hidden'));
+
+                    const targetSection = document.getElementById(sectionId);
+                    if (targetSection) {
+                                    targetSection.classList.remove('hidden');
+                                }
+
+                    // Update navigation buttons
+                    document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+                    if (event && event.target) {
+                                    event.target.classList.add('active');
+                                }
+
+                    document.querySelectorAll('.bottom-nav-btn').forEach(btn => btn.classList.remove('active'));
+
+                    if (sectionId === 'summaries') {
+                                    updateSummaries();
+                                } else if (sectionId === 'overview') {
+                                    loadExpenses();
+                                }
+                };
+
     // Date filter functions
     const setDateFilter = (range) => {
         dateFilter = range;
