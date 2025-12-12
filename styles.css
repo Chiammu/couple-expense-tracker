@@ -431,3 +431,13 @@ canvas {
 .expense-item {
   animation: slideIn 0.3s ease-out;
 }
+
+/* Tab Section Visibility */
+.section {
+    display: none;
+    animation: fadeIn 0.3s;
+}
+
+.section.active {
+    display: block;
+}
