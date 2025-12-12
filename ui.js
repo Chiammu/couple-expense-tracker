@@ -33,6 +33,7 @@ const UIModule = (() => {
 
     tabButtons.forEach((btn) => {
       btn.addEventListener('click', (e) => {
+              e.preventDefault();
         const tabName = btn.getAttribute('data-tab');
         switchTab(tabName, tabButtons, tabContents);
       });
