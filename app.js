@@ -429,23 +429,6 @@ const App = (() => {
         UIModule.showNotification('Person names updated');
     };
 
-    // Switch sections (for navigation)
-    const switchSection = (sectionId) => {
-        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-        document.getElementById(sectionId).classList.add('active');
-        
-        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-        if (event && event.target) {
-            event.target.classList.add('active');
-        }
-        
-        document.querySelectorAll('.bottom-nav-btn').forEach(btn => btn.classList.remove('active'));
-        
-        if (sectionId === 'summaries') {
-            updateSummaries();
-        } else if (sectionId === 'overview') {
-            loadExpenses();
-        }
     };
 
     // Make delete accessible from UI
