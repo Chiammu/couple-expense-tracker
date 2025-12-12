@@ -144,6 +144,31 @@ const UIModule = (() => {
     }
   };
 
+    // Switch between sections (for main app navigation)
+  const switchSection = (sectionId) => {
+    // Hide all sections
+    const sections = document.querySelectorAll('.section');
+    sections.forEach(section => section.classList.remove('active'));
+
+    // Remove active class from all nav buttons
+    const navButtons = document.querySelectorAll('.nav-btn, .bottom-nav-btn');
+    navButtons.forEach(btn => btn.classList.remove('active'));
+
+    // Show target section
+    const targetSection = document.getElementById(sectionId);
+    if (targetSection) {
+      targetSection.classList.add('active');
+    }
+
+    // Add active class to corresponding nav buttons
+    navButtons.forEach(btn => {
+      const btnOnclick = btn.getAttribute('onclick');
+      if (btnOnclick && btnOnclick.includes(sectionId)) {
+        btn.classList.add('active');
+      }
+    });
+  };
+
   return {
     init,
     applyTheme,
@@ -151,6 +176,7 @@ const UIModule = (() => {
     getTheme,
     setupTabNavigation,
     switchTab,
+        switchSection,
     renderExpenses,
     updateSummary,
     showNotification,
@@ -159,6 +185,9 @@ const UIModule = (() => {
     toggleElement
   };
 })();
+
+// Expose switchSection globally for onclick handlers
+window.switchSection = UIModule.switchSection;
 
 // Initialize UI when DOM is ready
 if (document.readyState === 'loading') {
