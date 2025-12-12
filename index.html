@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Couple Expense Tracker</title>
+    <link rel="manifest" href="./manifest.json">
     <style>
         :root {
             --primary: #e91e63;
@@ -2053,6 +2054,36 @@
                 toast.remove();
             }, 3000);
         }
+        
+// Service Worker Registration for PWA
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./service-worker.js')
+    .then((registration) => {
+      console.log('Service Worker registered successfully:', registration);
+      // Check for updates periodically
+      setInterval(() => {
+        registration.update();
+      }, 60000); // Check every minute
+    })
+    .catch((error) => {
+      console.warn('Service Worker registration failed:', error);
+    });
+}
+
+// Install prompt handling
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  // Show install button or prompt
+  console.log('PWA install prompt is ready');
+});
+
+window.addEventListener('appinstalled', () => {
+  console.log('PWA was installed');
+  deferredPrompt = null;
+});
+
     </script>
 </body>
 </html>
