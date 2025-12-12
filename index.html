@@ -6,6 +6,7 @@
     <title>Couple Expense Tracker</title>
     <link rel="manifest" href="./manifest.json">
     <script src="./backup-manager.js"></script>
+    <script src="./csv-utilities.js"></script>
     <style>
         :root {
             --primary: #e91e63;
@@ -1028,6 +1029,7 @@
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                     <button class="btn btn-secondary" onclick="exportData()" style="width: 100%;">💾 Export Data</button>
                     <button class="btn btn-outline" onclick="importData()" style="width: 100%;">📂 Import Data</button>
+                            <button class="btn btn-outline" onclick="triggerCSVImport()" style="width: 100%;">📊 Import CSV</button>
                 </div>
                 <button class="btn btn-danger" onclick="clearAllData()" style="width: 100%; margin-top: 8px;">🗑️ Clear All Data</button>
                 <input type="file" id="importInput" accept=".json" onchange="handleImport(event)" style="display: none;">
@@ -2125,6 +2127,79 @@ if (navigator.storage && navigator.storage.persist) {
     console.log('Persistent storage:', persistent ? 'granted' : 'denied');
   });
 }
+        
+// ==================== CSV IMPORT/EXPORT ====================
+// Export expenses to CSV
+function exportToCSV() {
+  const csvContent = CSVUtilities.exportToCSV(appState.expenses);
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+  CSVUtilities.downloadCSV(csvContent, `expenses-${timestamp}.csv`);
+  showToast('✅ Expenses exported to CSV file');
+}
+
+// Import CSV file
+function triggerCSVImport() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.csv';
+  
+  input.onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    CSVUtilities.importFromFile(file)
+      .then(importedExpenses => {
+        // Show confirmation dialog
+        const totalAmount = importedExpenses.reduce((sum, exp) => sum + parseFloat(exp.amount || 0), 0);
+        const confirmation = confirm(
+          `Import ${importedExpenses.length} expenses?\n` +
+          `Total amount: ₹${totalAmount.toFixed(2)}\n\n` +
+          `Choose OK to MERGE with existing data, or Cancel to view details.`
+        );
+        
+        if (confirmation) {
+          // Merge with existing
+          appState.expenses = [...appState.expenses, ...importedExpenses];
+          saveToStorage();
+          updateMainUI();
+          switchTab('summary');
+          showToast(`✅ ${importedExpenses.length} expenses imported successfully!`);
+        } else {
+          showToast('Import cancelled');
+        }
+      })
+      .catch(error => {
+        showToast(`❌ Import failed: ${error.message}`, 'error');
+        console.error('CSV Import Error:', error);
+      });
+  };
+  
+  input.click();
+}
+
+// Create CSV import button handler
+function setupCSVImport() {
+  const importBtn = document.getElementById('importCSVBtn');
+  if (importBtn) {
+    importBtn.addEventListener('click', triggerCSVImport);
+  }
+}
+
+// Initialize CSV import on page load
+window.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    setupCSVImport();
+  }, 100);
+});
+
+// Also setup when switching to settings
+const originalSwitchTab = switchTab;
+switchTab = function(tabName) {
+  originalSwitchTab(tabName);
+  if (tabName === 'settings') {
+    setupCSVImport();
+  }
+};
     </script>
 </body>
 </html>
