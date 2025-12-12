@@ -939,21 +939,6 @@
                     </div>
                 </div>
 
-                <div style="margin-bottom: 24px;">
-                    <label class="form-label">Primary Color</label>
-                    <div class="color-picker-grid" id="primaryColorPicker"></div>
-                </div>
-
-                <div style="margin-bottom: 24px;">
-                    <label class="form-label">Secondary Color</label>
-                    <div class="color-picker-grid" id="secondaryColorPicker"></div>
-                </div>
-
-                <div style="margin-bottom: 24px;">
-                    <label class="form-label">Accent Color</label>
-                    <div class="color-picker-grid" id="accentColorPicker"></div>
-                </div>
-            </div>
 
             <div class="card">
                 <h3>Typography</h3>
@@ -979,34 +964,6 @@
             </div>
 
             <div class="card">
-                <h3>Header Customization</h3>
-                
-                <div style="margin-bottom: 16px;">
-                    <label class="form-label">Cover Photo</label>
-                    <div class="upload-area" onclick="document.getElementById('coverPhotoInput').click()">
-                        <div>📷 Click to upload or drag & drop</div>
-                        <small>JPG, PNG (Max 5MB)</small>
-                        <input type="file" id="coverPhotoInput" accept="image/*" onchange="uploadCoverPhoto(event)">
-                    </div>
-                </div>
-
-                <div style="margin-bottom: 16px;">
-                    <img id="coverPhotoPreview" class="photo-preview" style="display: none;">
-                </div>
-
-                <div style="margin-bottom: 16px;">
-                    <label class="form-label">Header Text</label>
-                    <input type="text" class="form-input" id="headerTitle" placeholder="Couple Expense Tracker" oninput="updateHeaderText()">
-                </div>
-
-                <div style="margin-bottom: 16px;">
-                    <label class="form-label">Header Subtitle</label>
-                    <input type="text" class="form-input" id="headerSubtitleText" placeholder="Manage your finances together" oninput="updateHeaderText()">
-                </div>
-
-                <button class="btn btn-danger" onclick="clearHeader()" style="width: 100%;">Remove Header Photo</button>
-            </div>
-
             <div class="card">
                 <h3>Person Names</h3>
                 <div class="form-row">
