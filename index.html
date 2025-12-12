@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Couple Expense Tracker</title>
     <link rel="manifest" href="./manifest.json">
+    <script src="./backup-manager.js"></script>
     <style>
         :root {
             --primary: #e91e63;
@@ -2084,6 +2085,46 @@ window.addEventListener('appinstalled', () => {
   deferredPrompt = null;
 });
 
+        
+// ==================== BACKUP INTEGRATION ====================
+// Modify saveToStorage to use BackupManager
+const originalSaveToStorage = saveToStorage;
+saveToStorage = function() {
+  originalSaveToStorage();
+  // Automatically save to IndexedDB and create backup
+  if (backupManager && backupManager.db) {
+    backupManager.saveData(appState).then(() => {
+      console.log('Data backed up to IndexedDB');
+    }).catch(error => {
+      console.warn('Backup failed:', error);
+    });
+  }
+};
+
+// Load data from IndexedDB on startup
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    if (backupManager && backupManager.db) {
+      backupManager.loadData().then(savedData => {
+        if (savedData) {
+          appState = savedData;
+          console.log('Data loaded from IndexedDB');
+          updateMainUI();
+          loadFromStorage();
+        }
+      }).catch(error => {
+        console.warn('Failed to load backup:', error);
+      });
+    }
+  }, 500); // Wait for backup manager to initialize
+});
+
+// Request persistent storage for better longevity
+if (navigator.storage && navigator.storage.persist) {
+  navigator.storage.persist().then(persistent => {
+    console.log('Persistent storage:', persistent ? 'granted' : 'denied');
+  });
+}
     </script>
 </body>
 </html>
