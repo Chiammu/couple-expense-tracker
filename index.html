@@ -1299,7 +1299,7 @@
             const categoryTableBody = document.getElementById('categoryTableBody');
             categoryTableBody.innerHTML = '';
 
-            Object.entries(categoryMap).sort(([, a], [, b]) => b.amount - a.amount).forEach(([cat, data]) => {
+            Object.entries(categoryMap).forEach(([cat, data]) => {
                 const percent = grandTotal > 0 ? ((data.amount / grandTotal) * 100).toFixed(1) : 0;
                 const row = `<tr>
                     <td>${cat}</td>
