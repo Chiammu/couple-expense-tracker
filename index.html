@@ -2160,6 +2160,7 @@ switchTab = function(tabName) {
          // ==================== CATEGORY TABLE SORTING ====================
  let categorySortState = { column: null, ascending: true };
  function sortCategoryTable(column) {
+     categorySortState.ascending = window.confirm('Sort ' + column + ' column in ascending order?\n(OK = Ascending, Cancel = Descending)');
    const tbody = document.getElementById('categoryTableBody');
    if (!tbody) return;
    const rows = Array.from(tbody.querySelectorAll('tr'));
