@@ -796,7 +796,7 @@
                     <table id="categoryTable">
                         <thead>
                             <tr>
-                                <th>Category</th>
+                                <th onclick="sortCategoryTable('category')" style="cursor:pointer;">Category</th>
                                 <th>Amount</th>
                                 <th>Count</th>
                                 <th>%</th>
@@ -1334,8 +1334,8 @@
                     <div style="text-align: right;">
                         <div class="expense-amount">${formatCurrency(exp.amount)}</div>
                         <div class="expense-person">${effectivePerson}</div>
-                        <button class="btn btn-small btn-outline" style="margin-top: 6px; margin-right: 4px;" onclick="startEditExpense(${exp.id})">Edit</button>
-                        <button class="btn btn-small btn-danger" style="margin-top: 6px;" onclick="deleteExpense(${exp.id})">Delete</button>
+                        <button class="btn btn-small btn-outline" style="margin-top: 6px; margin-right: 4px;" onclick="startEditExpense(${exp.id})">✏️</button>
+                        <button class="btn btn-small btn-danger" style="margin-top: 6px;" onclick="deleteExpense(${exp.id})">🗑</button>
                     </div>
                 </div>`;
                 expenseList.innerHTML += item;
@@ -2157,6 +2157,52 @@ switchTab = function(tabName) {
     setupCSVImport();
   }
 };
+         // ==================== CATEGORY TABLE SORTING ====================
+ let categorySortState = { column: null, ascending: true };
+ function sortCategoryTable(column) {
+   const tbody = document.getElementById('categoryTableBody');
+   if (!tbody) return;
+   const rows = Array.from(tbody.querySelectorAll('tr'));
+   // Toggle sort direction if same column clicked
+   if (categorySortState.column === column) {
+     categorySortState.ascending = !categorySortState.ascending;
+   } else {
+     categorySortState.column = column;
+     categorySortState.ascending = true;
+   }
+   // Sort rows based on column
+   rows.sort((a, b) => {
+     let aVal, bVal;
+     if (column === 'category') {
+       aVal = a.cells[0].textContent.trim();
+       bVal = b.cells[0].textContent.trim();
+       return categorySortState.ascending ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+     } else if (column === 'amount') {
+       aVal = parseFloat(a.cells[1].textContent.replace(/[^0-9.]/g, ''));
+       bVal = parseFloat(b.cells[1].textContent.replace(/[^0-9.]/g, ''));
+     } else if (column === 'count') {
+       aVal = parseInt(a.cells[2].textContent);
+       bVal = parseInt(b.cells[2].textContent);
+     } else if (column === 'percent') {
+       aVal = parseFloat(a.cells[3].textContent);
+       bVal = parseFloat(b.cells[3].textContent);
+     }
+     return categorySortState.ascending ? aVal - bVal : bVal - aVal;
+   });
+   // Re-append sorted rows
+   rows.forEach(row => tbody.appendChild(row));
+   // Update visual indicator for sorted column
+   document.querySelectorAll('#categoryTable th').forEach((th, idx) => {
+     const cols = ['category', 'amount', 'count', 'percent'];
+     if (cols[idx] === column) {
+       th.style.backgroundColor = 'rgba(233, 30, 99, 0.1)';
+       th.style.cursor = 'pointer';
+     } else {
+       th.style.backgroundColor = 'transparent';
+       th.style.cursor = 'pointer';
+     }
+   });
+ }
     </script>
 </body>
 </html>
