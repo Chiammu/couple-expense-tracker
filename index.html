@@ -2195,10 +2195,13 @@ switchTab = function(tabName) {
    // Update visual indicator for sorted column
    document.querySelectorAll('#categoryTable th').forEach((th, idx) => {
      const cols = ['category', 'amount', 'count', 'percent'];
+       let headerTexts = ['Category', 'Amount', 'Count', '%'];
      if (cols[idx] === column) {
        th.style.backgroundColor = 'rgba(233, 30, 99, 0.1)';
+         th.textContent = headerTexts[idx] + (categorySortState.ascending ? ' ↑' : ' ↓');
        th.style.cursor = 'pointer';
      } else {
+         th.textContent = headerTexts[idx];
        th.style.backgroundColor = 'transparent';
        th.style.cursor = 'pointer';
      }
