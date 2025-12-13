@@ -22,7 +22,7 @@
             --primary-rgb: 233, 30, 99;
             --secondary-rgb: 33, 150, 243;
             --accent-rgb: 255, 111, 0;
-            --base-font-size: 15px;
+            --base-font-size: 15px; /* Added for easy global size adjustment */
         }
 
         [data-theme="dark"] {
@@ -229,7 +229,7 @@
         }
 
         .btn-primary:hover {
-            background: #c2185b;
+            background: #c2185b; /* Slightly darker primary */
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.3);
         }
@@ -797,9 +797,9 @@
                         <thead>
                             <tr>
                                 <th onclick="sortCategoryTable('category')" style="cursor:pointer;">Category</th>
-                                <th onclick="sortCategoryTable('amount')" style="cursor:pointer;">Amount</th>
-                                <th onclick="sortCategoryTable('count')" style="cursor:pointer;">Count</th>
-                                <th onclick="sortCategoryTable('percent')" style="cursor:pointer;">%</th>
+                                <th>Amount</th>
+                                <th>Count</th>
+                                <th>%</th>
                             </tr>
                         </thead>
                         <tbody id="categoryTableBody">
@@ -883,8 +883,7 @@
                 </div>
 
                 <div id="fixedPaymentsList" style="margin-top: 12px;"></div>
-                <div id="fixedPaymentsReminder" class="summary-label
-" style="margin-top: 8px;"></div>
+                <div id="fixedPaymentsReminder" class="summary-label" style="margin-top: 8px;"></div>
             </div>
 
             <div class="summary-grid">
@@ -927,7 +926,6 @@
             </div>
         </div>
     </section>
-
     <section id="settings" class="section">
         <div class="container">
             <div class="card">
@@ -940,7 +938,7 @@
                         <button class="btn btn-outline" onclick="setTheme('dark')" id="themeDark" style="flex: 1;">🌙 Dark</button>
                     </div>
                 </div>
-            </div>
+
 
             <div class="card">
                 <h3>Typography</h3>
@@ -966,6 +964,7 @@
             </div>
 
             <div class="card">
+            <div class="card">
                 <h3>Person Names</h3>
                 <div class="form-row">
                     <div class="form-group">
@@ -987,7 +986,7 @@
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                     <button class="btn btn-secondary" onclick="exportData()" style="width: 100%;">💾 Export Data</button>
                     <button class="btn btn-outline" onclick="importData()" style="width: 100%;">📂 Import Data</button>
-                    <button class="btn btn-outline" onclick="triggerCSVImport()" style="width: 100%;">📊 Import CSV</button>
+                            <button class="btn btn-outline" onclick="triggerCSVImport()" style="width: 100%;">📊 Import CSV</button>
                 </div>
                 <button class="btn btn-danger" onclick="clearAllData()" style="width: 100%; margin-top: 8px;">🗑️ Clear All Data</button>
                 <input type="file" id="importInput" accept=".json" onchange="handleImport(event)" style="display: none;">
@@ -1068,17 +1067,19 @@
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.getElementById(sectionId).classList.add('active');
 
+            // Update main nav buttons
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
             if (element && element.classList.contains('nav-btn')) {
                 element.classList.add('active');
             } else {
-                const navBtn = document.querySelector(`.nav-btn[onclick*="${sectionId}"]`);
-                if (navBtn) navBtn.classList.add('active');
+                // Find and activate the corresponding main nav button
+                document.querySelector(`.nav-btn[onclick*="${sectionId}"]`).classList.add('active');
             }
 
+            // Update bottom mobile nav buttons
             document.querySelectorAll('.bottom-nav-btn').forEach(btn => btn.classList.remove('active'));
-            const bottomBtn = document.querySelector(`.bottom-nav-btn[onclick*="${sectionId}"]`);
-            if (bottomBtn) bottomBtn.classList.add('active');
+            document.querySelector(`.bottom-nav-btn[onclick*="${sectionId}"]`).classList.add('active');
+
 
             if (sectionId === 'summaries') updateSummaries();
             if (sectionId === 'overview') updateOverview();
@@ -1192,12 +1193,11 @@
             if (element) {
                 element.classList.add('active');
             } else {
-                const btn = document.querySelector(`.filter-btn[onclick*="'${range}'"]`);
-                if (btn) btn.classList.add('active');
+                 document.querySelector(`.filter-btn[onclick*="'${range}'"]`).classList.add('active');
             }
 
             if (range !== 'custom') {
-                document.getElementById('customDateFilter').style.display = 'none';
+                 document.getElementById('customDateFilter').style.display = 'none';
             }
 
             updateSummaries();
@@ -1221,8 +1221,7 @@
             appState.dateFilter = 'custom';
 
             document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            const customBtn = document.querySelector(`.filter-btn[onclick*="'custom'"]`);
-            if (customBtn) customBtn.classList.add('active');
+            document.querySelector(`.filter-btn[onclick*="'custom'"]`).classList.add('active');
 
             updateSummaries();
         }
@@ -1237,8 +1236,10 @@
                 endDate.setHours(23, 59, 59, 999);
             } else if (appState.dateFilter === 'week') {
                 startDate = new Date(now);
+                // Start of the week (Sunday)
                 startDate.setDate(now.getDate() - now.getDay()); 
                 startDate.setHours(0, 0, 0, 0);
+                // End of the week (Saturday)
                 endDate.setDate(startDate.getDate() + 6);
                 endDate.setHours(23, 59, 59, 999);
             } else if (appState.dateFilter === 'month') {
@@ -1250,13 +1251,16 @@
                 endDate.setHours(23, 59, 59, 999);
             }
 
+            // Fallback for initial load or if a filter is set but dates aren't fully defined
             if (!startDate) {
+                // Default to current month if no specific filter is fully defined
                 startDate = new Date(now.getFullYear(), now.getMonth(), 1);
                 endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
             }
 
+
             return appState.expenses.filter(exp => {
-                const expDate = new Date(exp.date + 'T00:00:00');
+                const expDate = new Date(exp.date + 'T00:00:00'); // Ensure dates are compared accurately at midnight
                 return expDate >= startDate && expDate <= endDate;
             });
         }
@@ -1282,7 +1286,7 @@
             document.getElementById('sharedExpense').textContent = formatCurrency(sharedTotal);
             document.getElementById('grandTotal').textContent = formatCurrency(grandTotal);
 
-            // Category breakdown - SORTED BY AMOUNT (HIGH TO LOW)
+            // Category breakdown
             const categoryMap = {};
             filtered.forEach(exp => {
                 if (!categoryMap[exp.category]) {
@@ -1295,19 +1299,16 @@
             const categoryTableBody = document.getElementById('categoryTableBody');
             categoryTableBody.innerHTML = '';
 
-            // Sort by amount (high to low) by default
-            Object.entries(categoryMap)
-                .sort(([, a], [, b]) => b.amount - a.amount)
-                .forEach(([cat, data]) => {
-                    const percent = grandTotal > 0 ? ((data.amount / grandTotal) * 100).toFixed(1) : 0;
-                    const row = `<tr>
-                        <td>${cat}</td>
-                        <td>${formatCurrency(data.amount)}</td>
-                        <td>${data.count}</td>
-                        <td>${percent}%</td>
-                    </tr>`;
-                    categoryTableBody.innerHTML += row;
-                });
+            Object.entries(categoryMap).sort(([, a], [, b]) => b.amount - a.amount).forEach(([cat, data]) => {
+                const percent = grandTotal > 0 ? ((data.amount / grandTotal) * 100).toFixed(1) : 0;
+                const row = `<tr>
+                    <td>${cat}</td>
+                    <td>${formatCurrency(data.amount)}</td>
+                    <td>${data.count}</td>
+                    <td>${percent}%</td>
+                </tr>`;
+                categoryTableBody.innerHTML += row;
+            });
 
             // Recent expenses
             const expenseList = document.getElementById('expenseList');
@@ -1502,6 +1503,7 @@
         }
 
         function updateOverview() {
+            // Read income from inputs (not persistent yet, but updates visuals)
             const husbandIncome = parseFloat(document.getElementById('husbandIncome').value) || 0;
             const wifeIncome = parseFloat(document.getElementById('wifeIncome').value) || 0;
 
@@ -1528,6 +1530,7 @@
             document.getElementById('estimatedSavings').textContent = formatCurrency(savings);
             document.getElementById('savingsPercent').textContent = savingsPercent + '%';
 
+            // Budget status & alert
             const budget = appState.monthlyBudget || 0;
             if (document.getElementById('budgetStatusText')) {
                 if (budget > 0) {
@@ -1537,6 +1540,7 @@
                     if (monthlySpend > budget) {
                         document.getElementById('budgetReminderText').textContent =
                             '⚠️ You have crossed your monthly budget.';
+                        // Removed showToast here to avoid constant notification on page refresh
                     } else if (monthlySpend > budget * 0.8) {
                         document.getElementById('budgetReminderText').textContent =
                             '⌛ You are above 80% of your budget.';
@@ -1550,10 +1554,12 @@
                 }
             }
 
+            // Fixed payments reminder
             const reminderEl = document.getElementById('fixedPaymentsReminder');
             if (reminderEl) {
                 const today = new Date();
                 const dayToday = today.getDate();
+                // Filter for payments due in the next 5 days (including today)
                 const upcoming = (appState.fixedPayments || []).filter(p => p.day >= dayToday && p.day <= dayToday + 5);
                 if (upcoming.length > 0) {
                     const names = upcoming.map(p => `${p.name} on ${p.day}`).join(', ');
@@ -1563,597 +1569,640 @@
                 }
             }
 
+            // Spending distribution per person (for insights)
             let p1Spend = 0, p2Spend = 0, sharedSpend = 0;
             monthExpenses.forEach(exp => {
                 if (exp.person === 'Person1') p1Spend += exp.amount;
-generateInsights(p1Spend, p2Spend, sharedSpend, monthlySpend, combinedIncome);
-        updatePieChart();
-    }
+                else if (exp.person === 'Person2') p2Spend += exp.amount;
+                else if (exp.person === 'Both') sharedSpend += exp.amount;
+            });
 
-    function generateInsights(p1Spend, p2Spend, sharedSpend, totalSpend, income) {
-        const insights = [];
-
-        if (sharedSpend > 0 && totalSpend > 0) {
-            const sharedPct = ((sharedSpend / totalSpend) * 100).toFixed(0);
-            insights.push(`💑 Shared expenses are <strong>${sharedPct}%</strong> of your total spending.`);
+            generateInsights(p1Spend, p2Spend, sharedSpend, monthlySpend, combinedIncome);
+            updatePieChart();
         }
 
-        const categoryMap = {};
-        getFilteredExpenses().forEach(exp => {
-            if (!categoryMap[exp.category]) categoryMap[exp.category] = 0;
-            categoryMap[exp.category] += exp.amount;
-        });
+        function generateInsights(p1Spend, p2Spend, sharedSpend, totalSpend, income) {
+            const insights = [];
 
-        const sortedCategories = Object.entries(categoryMap).sort((a, b) => b[1] - a[1]);
-        const topCategory = sortedCategories[0];
+            if (sharedSpend > 0 && totalSpend > 0) {
+                const sharedPct = ((sharedSpend / totalSpend) * 100).toFixed(0);
+                insights.push(`💑 Shared expenses are <strong>${sharedPct}%</strong> of your total spending.`);
+            }
 
-        if (topCategory && topCategory[1] > 0) {
-            insights.push(`🔝 <strong>${topCategory[0]}</strong> is your top spending category at ${formatCurrency(topCategory[1])}.`);
-        }
+            const categoryMap = {};
+            getFilteredExpenses().forEach(exp => {
+                if (!categoryMap[exp.category]) categoryMap[exp.category] = 0;
+                categoryMap[exp.category] += exp.amount;
+            });
 
-        if (income > 0 && totalSpend > 0) {
-            const spendingRatio = ((totalSpend / income) * 100).toFixed(0);
-            insights.push(`💰 You've spent <strong>${spendingRatio}%</strong> of your combined income in this period.`);
-            if (spendingRatio < 50) {
-                insights.push(`🎉 Great job! You're saving more than 50% of your income!`);
-            } else if (spendingRatio > 80) {
-                insights.push(`⚠️ Watch out! You're spending over 80% of your income.`);
+            const sortedCategories = Object.entries(categoryMap).sort((a, b) => b[1] - a[1]);
+            const topCategory = sortedCategories[0];
+
+            if (topCategory && topCategory[1] > 0) {
+                insights.push(`🔝 <strong>${topCategory[0]}</strong> is your top spending category at ${formatCurrency(topCategory[1])}.`);
+            }
+
+            if (income > 0 && totalSpend > 0) {
+                const spendingRatio = ((totalSpend / income) * 100).toFixed(0);
+                insights.push(`💰 You've spent <strong>${spendingRatio}%</strong> of your combined income in this period.`);
+                if (spendingRatio < 50) {
+                    insights.push(`🎉 Great job! You're saving more than 50% of your income!`);
+                } else if (spendingRatio > 80) {
+                    insights.push(`⚠️ Watch out! You're spending over 80% of your income.`);
+                }
+            }
+
+            const spendDifference = Math.abs(p1Spend - p2Spend);
+            if (spendDifference > 100) { // Only show if difference is significant
+                const p1Name = appState.settings.person1Name || 'Person 1';
+                const p2Name = appState.settings.person2Name || 'Person 2';
+                const spenderName = p1Spend > p2Spend ? p1Name : p2Name;
+                insights.push(`📊 ${spenderName} has spent ${formatCurrency(spendDifference)} more than their partner (excluding shared).`);
+            }
+
+            const insightContainer = document.getElementById('insightContainer');
+            if (insights.length === 0) {
+                insightContainer.innerHTML = '<p style="color: var(--text-light);">No data yet for insights</p>';
+            } else {
+                insightContainer.innerHTML = insights.map(insight => `<div class="insight">${insight}</div>`).join('');
             }
         }
 
-        const spendDifference = Math.abs(p1Spend - p2Spend);
-        if (spendDifference > 100) {
-            const p1Name = appState.settings.person1Name || 'Person 1';
-            const p2Name = appState.settings.person2Name || 'Person 2';
-            const spenderName = p1Spend > p2Spend ? p1Name : p2Name;
-            insights.push(`📊 ${spenderName} has spent ${formatCurrency(spendDifference)} more than their partner (excluding shared).`);
-        }
+        // ==================== THEME & FONT (REFACTORED COLOR PICKER) ====================
 
-        const insightContainer = document.getElementById('insightContainer');
-        if (insights.length === 0) {
-            insightContainer.innerHTML = '<p style="color: var(--text-light);">No data yet for insights</p>';
-        } else {
-            insightContainer.innerHTML = insights.map(insight => `<div class="insight">${insight}</div>`).join('');
-        }
-    }
-
-    // ==================== THEME & FONT ====================
-    function setColor(type, color) {
-        appState.settings[`${type}Color`] = color;
-        saveToStorage();
-        
-        document.documentElement.style.setProperty(`--${type}`, color);
-        document.documentElement.style.setProperty(`--${type}-rgb`, hexToRgb(color));
-
-        renderColorPickers();
-    }
-
-    function createColorPicker(elementId, type) {
-        const container = document.getElementById(elementId);
-        if (!container) return;
-        
-        container.innerHTML = '';
-        const currentColor = appState.settings[`${type}Color`];
-
-        colorPresets.forEach(color => {
-            const swatch = document.createElement('div');
-            swatch.className = 'color-swatch';
-            swatch.style.backgroundColor = color;
+        /**
+         * Updates the CSS variable and appState for a specific color type.
+         * @param {string} type - 'primary', 'secondary', or 'accent'.
+         * @param {string} color - The new hex color value.
+         */
+        function setColor(type, color) {
+            appState.settings[`${type}Color`] = color;
+            saveToStorage();
             
-            swatch.onclick = () => setColor(type, color);
+            document.documentElement.style.setProperty(`--${type}`, color);
+            document.documentElement.style.setProperty(`--${type}-rgb`, hexToRgb(color));
 
-            if (color === currentColor) {
-                swatch.classList.add('selected');
-            }
-            container.appendChild(swatch);
-        });
-    }
-
-    function renderColorPickers() {
-        createColorPicker('primaryColorPicker', 'primary');
-        createColorPicker('secondaryColorPicker', 'secondary');
-        createColorPicker('accentColorPicker', 'accent');
-    }
-
-    function setTheme(theme) {
-        appState.settings.theme = theme;
-        saveToStorage();
-        applyTheme();
-        document.getElementById('themeLight').classList.remove('btn-secondary');
-        document.getElementById('themeDark').classList.remove('btn-secondary');
-        if (theme === 'light') {
-            document.getElementById('themeLight').classList.add('btn-secondary');
-        } else {
-            document.getElementById('themeDark').classList.add('btn-secondary');
+            // Re-render pickers to update 'selected' class
+            renderColorPickers();
         }
-    }
 
-    function applyTheme() {
-        if (appState.settings.theme === 'dark') {
-            document.documentElement.setAttribute('data-theme', 'dark');
-            document.getElementById('themeDark').classList.add('btn-secondary');
+        /**
+         * Creates and renders a color picker grid for a specific color type.
+         * @param {string} elementId - The ID of the container element (e.g., 'primaryColorPicker').
+         * @param {string} type - 'primary', 'secondary', or 'accent'.
+         */
+        function createColorPicker(elementId, type) {
+            const container = document.getElementById(elementId);
+            if (!container) return;
+            
+            container.innerHTML = ''; // Clear previous swatches
+            const currentColor = appState.settings[`${type}Color`];
+
+            colorPresets.forEach(color => {
+                const swatch = document.createElement('div');
+                swatch.className = 'color-swatch';
+                swatch.style.backgroundColor = color;
+                
+                swatch.onclick = () => setColor(type, color);
+
+                if (color === currentColor) {
+                    swatch.classList.add('selected');
+                }
+                container.appendChild(swatch);
+            });
+        }
+
+        /**
+         * Renders all color pickers using the unified creation function.
+         */
+        function renderColorPickers() {
+            createColorPicker('primaryColorPicker', 'primary');
+            createColorPicker('secondaryColorPicker', 'secondary');
+            createColorPicker('accentColorPicker', 'accent');
+        }
+
+        function setTheme(theme) {
+            appState.settings.theme = theme;
+            saveToStorage();
+            applyTheme();
+            // Update button styles
             document.getElementById('themeLight').classList.remove('btn-secondary');
-        } else {
-            document.documentElement.removeAttribute('data-theme');
-            document.getElementById('themeLight').classList.add('btn-secondary');
             document.getElementById('themeDark').classList.remove('btn-secondary');
-        }
-    }
-
-    function setFontStyle(style) {
-        appState.settings.fontStyle = style;
-        saveToStorage();
-        applyFontSettings();
-    }
-
-    function setFontSize(size) {
-        appState.settings.fontSize = size;
-        saveToStorage();
-        applyFontSettings();
-    }
-
-    function applyFontSettings() {
-        const root = document.documentElement;
-        const preview = document.getElementById('fontPreview');
-
-        if (appState.settings.fontStyle === 'playful') {
-            root.style.setProperty('--font-family', "'Comic Sans MS', 'Trebuchet MS', cursive");
-        } else if (appState.settings.fontStyle === 'serif') {
-            root.style.setProperty('--font-family', "'Georgia', 'Times New Roman', serif");
-        } else {
-            root.style.setProperty('--font-family', "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif");
-        }
-
-        if (appState.settings.fontSize === 'small') {
-            root.style.setProperty('--base-font-size', '13px');
-        } else if (appState.settings.fontSize === 'large') {
-            root.style.setProperty('--base-font-size', '17px');
-        } else {
-            root.style.setProperty('--base-font-size', '15px');
-        }
-
-        if (preview) {
-            preview.className = 'font-preview ' + appState.settings.fontStyle;
-        }
-
-        ['clean', 'playful', 'serif'].forEach(style => {
-            const btn = document.getElementById(`font${style.charAt(0).toUpperCase() + style.slice(1)}`);
-            if (btn) {
-                btn.classList.toggle('btn-secondary', appState.settings.fontStyle === style);
-                btn.classList.toggle('btn-outline', appState.settings.fontStyle !== style);
+            if (theme === 'light') {
+                document.getElementById('themeLight').classList.add('btn-secondary');
+            } else {
+                document.getElementById('themeDark').classList.add('btn-secondary');
             }
-        });
+        }
 
-        ['small', 'medium', 'large'].forEach(size => {
-            const btn = document.getElementById(`font${size.charAt(0).toUpperCase() + size.slice(1)}`);
-            if (btn) {
-                btn.classList.toggle('btn-secondary', appState.settings.fontSize === size);
-                btn.classList.toggle('btn-outline', appState.settings.fontSize !== size);
+        function applyTheme() {
+            if (appState.settings.theme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                document.getElementById('themeDark').classList.add('btn-secondary');
+                document.getElementById('themeLight').classList.remove('btn-secondary');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                document.getElementById('themeLight').classList.add('btn-secondary');
+                document.getElementById('themeDark').classList.remove('btn-secondary');
             }
-        });
-    }
+        }
 
-    function hexToRgb(hex) {
-        const cleanHex = hex.replace('#', '');
-        const bigint = parseInt(cleanHex, 16);
-        const r = (bigint >> 16) & 255;
-        const g = (bigint >> 8) & 255;
-        const b = bigint & 255;
-        return `${r}, ${g}, ${b}`;
-    }
+        function setFontStyle(style) {
+            appState.settings.fontStyle = style;
+            saveToStorage();
+            applyFontSettings();
+        }
 
-    // ==================== HEADER PHOTO & TEXT ====================
-    function uploadCoverPhoto(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            appState.settings.coverPhotoData = e.target.result;
+        function setFontSize(size) {
+            appState.settings.fontSize = size;
+            saveToStorage();
+            applyFontSettings();
+        }
+
+        function applyFontSettings() {
+            const root = document.documentElement;
+            const preview = document.getElementById('fontPreview');
+
+            // Set Font Family
+            if (appState.settings.fontStyle === 'playful') {
+                root.style.setProperty('--font-family', "'Comic Sans MS', 'Trebuchet MS', cursive");
+            } else if (appState.settings.fontStyle === 'serif') {
+                root.style.setProperty('--font-family', "'Georgia', 'Times New Roman', serif");
+            } else {
+                root.style.setProperty('--font-family', "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif");
+            }
+
+            // Set Font Size
+            if (appState.settings.fontSize === 'small') {
+                root.style.setProperty('--base-font-size', '13px');
+            } else if (appState.settings.fontSize === 'large') {
+                root.style.setProperty('--base-font-size', '17px');
+            } else {
+                root.style.setProperty('--base-font-size', '15px');
+            }
+
+            // Update preview and buttons
+            if (preview) {
+                preview.className = 'font-preview ' + appState.settings.fontStyle;
+            }
+
+            ['clean', 'playful', 'serif'].forEach(style => {
+                const btn = document.getElementById(`font${style.charAt(0).toUpperCase() + style.slice(1)}`);
+                if (btn) {
+                    btn.classList.toggle('btn-secondary', appState.settings.fontStyle === style);
+                    btn.classList.toggle('btn-outline', appState.settings.fontStyle !== style);
+                }
+            });
+
+            ['small', 'medium', 'large'].forEach(size => {
+                const btn = document.getElementById(`font${size.charAt(0).toUpperCase() + size.slice(1)}`);
+                if (btn) {
+                    btn.classList.toggle('btn-secondary', appState.settings.fontSize === size);
+                    btn.classList.toggle('btn-outline', appState.settings.fontSize !== size);
+                }
+            });
+        }
+
+        function hexToRgb(hex) {
+            const cleanHex = hex.replace('#', '');
+            const bigint = parseInt(cleanHex, 16);
+            const r = (bigint >> 16) & 255;
+            const g = (bigint >> 8) & 255;
+            const b = bigint & 255;
+            return `${r}, ${g}, ${b}`;
+        }
+
+        // ==================== HEADER PHOTO & TEXT ====================
+        function uploadCoverPhoto(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                appState.settings.coverPhotoData = e.target.result;
+                saveToStorage();
+                applyCoverPhoto();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function applyCoverPhoto() {
+            const header = document.getElementById('header');
+            const preview = document.getElementById('coverPhotoPreview');
+            if (appState.settings.coverPhotoData) {
+                header.style.backgroundImage = `url(${appState.settings.coverPhotoData})`;
+                if (preview) {
+                    preview.src = appState.settings.coverPhotoData;
+                    preview.style.display = 'block';
+                }
+            } else {
+                header.style.backgroundImage = '';
+                if (preview) {
+                    preview.style.display = 'none';
+                }
+            }
+        }
+
+        function updateHeaderText() {
+            const titleInput = document.getElementById('headerTitle').value.trim();
+            const subtitleInput = document.getElementById('headerSubtitleText').value.trim();
+
+            appState.settings.headerTitle = titleInput || 'Couple Expense Tracker';
+            appState.settings.headerSubtitle = subtitleInput || 'Manage your finances together';
+
+            saveToStorage();
+            applyHeaderText();
+        }
+
+        function applyHeaderText() {
+            const h1 = document.querySelector('#header h1');
+            const subtitle = document.getElementById('headerSubtitle');
+            if (h1) h1.textContent = appState.settings.headerTitle || 'Couple Expense Tracker';
+            if (subtitle) subtitle.textContent = appState.settings.headerSubtitle || 'Manage your finances together';
+
+            const titleInput = document.getElementById('headerTitle');
+            const subtitleInput = document.getElementById('headerSubtitleText');
+            if (titleInput) titleInput.value = appState.settings.headerTitle || '';
+            if (subtitleInput) subtitleInput.value = appState.settings.headerSubtitle || '';
+        }
+
+        function clearHeader() {
+            appState.settings.coverPhotoData = null;
             saveToStorage();
             applyCoverPhoto();
-        };
-        reader.readAsDataURL(file);
-    }
-
-    function applyCoverPhoto() {
-        const header = document.getElementById('header');
-        const preview = document.getElementById('coverPhotoPreview');
-        if (appState.settings.coverPhotoData) {
-            header.style.backgroundImage = `url(${appState.settings.coverPhotoData})`;
-            if (preview) {
-                preview.src = appState.settings.coverPhotoData;
-                preview.style.display = 'block';
-            }
-        } else {
-            header.style.backgroundImage = '';
-            if (preview) {
-                preview.style.display = 'none';
-            }
-        }
-    }
-
-    function updateHeaderText() {
-        const titleInput = document.getElementById('headerTitle').value.trim();
-        const subtitleInput = document.getElementById('headerSubtitleText').value.trim();
-
-        appState.settings.headerTitle = titleInput || 'Couple Expense Tracker';
-        appState.settings.headerSubtitle = subtitleInput || 'Manage your finances together';
-
-        saveToStorage();
-        applyHeaderText();
-    }
-
-    function applyHeaderText() {
-        const h1 = document.querySelector('#header h1');
-        const subtitle = document.getElementById('headerSubtitle');
-        if (h1) h1.textContent = appState.settings.headerTitle || 'Couple Expense Tracker';
-        if (subtitle) subtitle.textContent = appState.settings.headerSubtitle || 'Manage your finances together';
-
-        const titleInput = document.getElementById('headerTitle');
-        const subtitleInput = document.getElementById('headerSubtitleText');
-        if (titleInput) titleInput.value = appState.settings.headerTitle || '';
-        if (subtitleInput) subtitleInput.value = appState.settings.headerSubtitle || '';
-    }
-
-    function clearHeader() {
-        appState.settings.coverPhotoData = null;
-        saveToStorage();
-        applyCoverPhoto();
-        showToast('Header photo removed.');
-    }
-
-    // ==================== PERSON NAMES ====================
-    function updatePersonNames() {
-        const p1 = document.getElementById('person1NameInput').value.trim();
-        const p2 = document.getElementById('person2NameInput').value.trim();
-        
-        appState.settings.person1Name = p1 || 'Person 1';
-        appState.settings.person2Name = p2 || 'Person 2';
-
-        saveToStorage();
-        refreshPersonLabels();
-        updateSummaries();
-        updateOverview();
-    }
-
-    function refreshPersonLabels() {
-        const p1Name = appState.settings.person1Name || 'Person 1';
-        const p2Name = appState.settings.person2Name || 'Person 2';
-
-        const person1Label = document.getElementById('person1Label');
-        const person2Label = document.getElementById('person2Label');
-
-        if (person1Label) person1Label.textContent = `${p1Name} Spent`;
-        if (person2Label) person2Label.textContent = `${p2Name} Spent`;
-
-        const personSelect = document.getElementById('expensePerson');
-        if (personSelect) {
-            if(personSelect.options.length > 1) personSelect.options[1].textContent = `👤 ${p1Name}`;
-            if(personSelect.options.length > 2) personSelect.options[2].textContent = `👤 ${p2Name}`;
+            showToast('Header photo removed.');
         }
 
-        const p1IncomeLabel = document.querySelector('label[for="husbandIncome"]');
-        const p2IncomeLabel = document.querySelector('label[for="wifeIncome"]');
-        if (p1IncomeLabel) p1IncomeLabel.textContent = `${p1Name} Income (₹)`;
-        if (p2IncomeLabel) p2IncomeLabel.textContent = `${p2Name} Income (₹)`;
-        
-        const p1NameInput = document.getElementById('person1NameInput');
-        const p2NameInput = document.getElementById('person2NameInput');
-        if (p1NameInput) p1NameInput.value = appState.settings.person1Name;
-        if (p2NameInput) p2NameInput.value = appState.settings.person2Name;
-    }
+        // ==================== PERSON NAMES ====================
+        function updatePersonNames() {
+            const p1 = document.getElementById('person1NameInput').value.trim();
+            const p2 = document.getElementById('person2NameInput').value.trim();
+            
+            appState.settings.person1Name = p1 || 'Person 1';
+            appState.settings.person2Name = p2 || 'Person 2';
 
-    // ==================== EXPORT / IMPORT ====================
-    function exportToCSV() {
-        const filtered = getFilteredExpenses();
-        let csv = 'Date,Person,Category,Amount,Payment Mode,Note\n';
+            saveToStorage();
+            refreshPersonLabels();
+            updateSummaries();
+            updateOverview();
+        }
 
-        filtered.forEach(exp => {
-            const row = [
-                exp.date,
-                exp.person,
-                exp.category,
-                exp.amount,
-                exp.paymentMode,
-                `"${(exp.note || '').replace(/"/g, '""')}"`
-            ].join(',');
-            csv += row + '\n';
-        });
+        function refreshPersonLabels() {
+            const p1Name = appState.settings.person1Name || 'Person 1';
+            const p2Name = appState.settings.person2Name || 'Person 2';
 
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `expense-tracker-filtered-${new Date().toISOString().split('T')[0]}.csv`;
-        a.click();
-        window.URL.revokeObjectURL(url);
-        showToast('✅ CSV exported successfully!');
-    }
+            const person1Label = document.getElementById('person1Label');
+            const person2Label = document.getElementById('person2Label');
 
-    function exportData() {
-        const data = JSON.stringify(appState, null, 2);
-        const blob = new Blob([data], { type: 'application/json' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `couple-expense-backup-${new Date().toISOString().split('T')[0]}.json`;
-        a.click();
-        window.URL.revokeObjectURL(url);
-        showToast('✅ Backup exported');
-    }
+            if (person1Label) person1Label.textContent = `${p1Name} Spent`;
+            if (person2Label) person2Label.textContent = `${p2Name} Spent`;
 
-    function importData() {
-        document.getElementById('importInput').click();
-    }
-
-    function handleImport(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                const imported = JSON.parse(e.target.result);
-                appState = {
-                    ...appState,
-                    ...imported,
-                    settings: { ...appState.settings, ...(imported.settings || {}) }
-                };
-                saveToStorage();
-                location.reload();
-                showToast('✅ Data imported. Reloading...');
-            } catch (err) {
-                showToast('Invalid backup file. Error: ' + err.message, 'error');
+            const personSelect = document.getElementById('expensePerson');
+            if (personSelect) {
+                // Assuming Person1 is option index 1, Person2 is index 2
+                if(personSelect.options.length > 1) personSelect.options[1].textContent = `👤 ${p1Name}`;
+                if(personSelect.options.length > 2) personSelect.options[2].textContent = `👤 ${p2Name}`;
             }
-        };
-        reader.readAsText(file);
-    }
 
-    function clearAllData() {
-        if (!confirm('WARNING: This will clear all expenses and settings permanently. Are you sure?')) return;
-        localStorage.removeItem('coupleExpenseTrackerV3');
-        location.reload();
-    }
+            const p1IncomeLabel = document.querySelector('label[for="husbandIncome"]');
+            const p2IncomeLabel = document.querySelector('label[for="wifeIncome"]');
+            if (p1IncomeLabel) p1IncomeLabel.textContent = `${p1Name} Income (₹)`;
+            if (p2IncomeLabel) p2IncomeLabel.textContent = `${p2Name} Income (₹)`;
+            
+            const p1NameInput = document.getElementById('person1NameInput');
+            const p2NameInput = document.getElementById('person2NameInput');
+            if (p1NameInput) p1NameInput.value = appState.settings.person1Name;
+            if (p2NameInput) p2NameInput.value = appState.settings.person2Name;
+        }
 
-    // ==================== STORAGE ====================
-    function saveToStorage() {
-        localStorage.setItem('coupleExpenseTrackerV3', JSON.stringify(appState));
-    }
+        // ==================== EXPORT / IMPORT ====================
+        function exportToCSV() {
+            const filtered = getFilteredExpenses();
+            let csv = 'Date,Person,Category,Amount,Payment Mode,Note\n';
 
-    function loadFromStorage() {
-        const saved = localStorage.getItem('coupleExpenseTrackerV3');
-        if (saved) {
-            try {
-                const parsed = JSON.parse(saved);
-                appState = {
-                    ...appState,
-                    ...parsed,
-                    settings: { 
-                        ...appState.settings, 
-                        ...(parsed.settings || {}) 
-                    },
-                    otherIncome: parsed.otherIncome || [],
-                    fixedPayments: parsed.fixedPayments || []
-                };
-            } catch (e) {
-                showToast('Error loading data from storage.', 'error');
+            filtered.forEach(exp => {
+                const row = [
+                    exp.date,
+                    exp.person,
+                    exp.category,
+                    exp.amount,
+                    exp.paymentMode,
+                    `"${(exp.note || '').replace(/"/g, '""')}"` // Handle quotes in notes
+                ].join(',');
+                csv += row + '\n';
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `expense-tracker-filtered-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+            showToast('✅ CSV exported successfully!');
+        }
+
+        function exportData() {
+            const data = JSON.stringify(appState, null, 2);
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `couple-expense-backup-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+            showToast('✅ Backup exported');
+        }
+
+        function importData() {
+            document.getElementById('importInput').click();
+        }
+
+        function handleImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    // Simple merge/overwrite - assume imported data is valid
+                    appState = {
+                        ...appState,
+                        ...imported,
+                        settings: { ...appState.settings, ...(imported.settings || {}) }
+                    };
+                    saveToStorage();
+                    location.reload(); // Reload to fully apply all settings and data
+                    showToast('✅ Data imported. Reloading...');
+                } catch (err) {
+                    showToast('Invalid backup file. Error: ' + err.message, 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function clearAllData() {
+            if (!confirm('WARNING: This will clear all expenses and settings permanently. Are you sure?')) return;
+            localStorage.removeItem('coupleExpenseTrackerV3');
+            location.reload();
+        }
+
+        // ==================== STORAGE ====================
+        function saveToStorage() {
+            localStorage.setItem('coupleExpenseTrackerV3', JSON.stringify(appState));
+        }
+
+        function loadFromStorage() {
+            const saved = localStorage.getItem('coupleExpenseTrackerV3');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    // Deep merge for settings
+                    appState = {
+                        ...appState,
+                        ...parsed,
+                        settings: { 
+                            ...appState.settings, 
+                            ...(parsed.settings || {}) 
+                        },
+                        // Ensure arrays are initialized if not present
+                        otherIncome: parsed.otherIncome || [],
+                        fixedPayments: parsed.fixedPayments || []
+                    };
+                } catch (e) {
+                    showToast('Error loading data from storage.', 'error');
+                }
+            }
+            // Apply all custom settings on load
+            applyTheme();
+            applyFontSettings();
+            applyCoverPhoto();
+            applyHeaderText();
+            
+            // Set input values from state
+            document.getElementById('monthlyBudget').value = appState.monthlyBudget || '';
+            document.getElementById('husbandIncome').value = document.getElementById('husbandIncome').value || '';
+            document.getElementById('wifeIncome').value = document.getElementById('wifeIncome').value || '';
+            
+            // Re-apply filter visuals
+            const filterButton = document.querySelector(`.filter-btn[onclick*="'${appState.dateFilter}'"]`);
+            if (filterButton) {
+                document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+                filterButton.classList.add('active');
+                if (appState.dateFilter === 'custom' && appState.customDateRange) {
+                    document.getElementById('customDateFilter').style.display = 'block';
+                    document.getElementById('filterFromDate').value = appState.customDateRange.from;
+                    document.getElementById('filterToDate').value = appState.customDateRange.to;
+                }
             }
         }
-        applyTheme();
-        applyFontSettings();
-        applyCoverPhoto();
-        applyHeaderText();
-        
-        document.getElementById('monthlyBudget').value = appState.monthlyBudget || '';
-        document.getElementById('husbandIncome').value = document.getElementById('husbandIncome').value || '';
-        document.getElementById('wifeIncome').value = document.getElementById('wifeIncome').value || '';
-        
-        const filterButton = document.querySelector(`.filter-btn[onclick*="'${appState.dateFilter}'"]`);
-        if (filterButton) {
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            filterButton.classList.add('active');
-            if (appState.dateFilter === 'custom' && appState.customDateRange) {
-                document.getElementById('customDateFilter').style.display = 'block';
-                document.getElementById('filterFromDate').value = appState.customDateRange.from;
-                document.getElementById('filterToDate').value = appState.customDateRange.to;
-            }
+
+        // ==================== TOAST ====================
+        let toastTimeout;
+        function showToast(message, type = 'success') {
+            const existing = document.querySelector('.toast');
+            if (existing) existing.remove();
+
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            if (type === 'error') toast.classList.add('error');
+            toast.textContent = message;
+
+            document.body.appendChild(toast);
+
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.remove();
+            }, 3000);
         }
-    }
-
-    // ==================== TOAST ====================
-    let toastTimeout;
-    function showToast(message, type = 'success') {
-        const existing = document.querySelector('.toast');
-        if (existing) existing.remove();
-
-        const toast = document.createElement('div');
-        toast.className = 'toast';
-        if (type === 'error') toast.classList.add('error');
-        toast.textContent = message;
-
-        document.body.appendChild(toast);
-
-        clearTimeout(toastTimeout);
-        toastTimeout = setTimeout(() => {
-            toast.remove();
-        }, 3000);
-    }
-    
-    // ==================== SERVICE WORKER ====================
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./service-worker.js')
-        .then((registration) => {
-          console.log('Service Worker registered successfully:', registration);
-          setInterval(() => {
-            registration.update();
-          }, 60000);
-        })
-        .catch((error) => {
-          console.warn('Service Worker registration failed:', error);
-        });
-    }
-
-    let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      console.log('PWA install prompt is ready');
+        
+// Service Worker Registration for PWA
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./service-worker.js')
+    .then((registration) => {
+      console.log('Service Worker registered successfully:', registration);
+      // Check for updates periodically
+      setInterval(() => {
+        registration.update();
+      }, 60000); // Check every minute
+    })
+    .catch((error) => {
+      console.warn('Service Worker registration failed:', error);
     });
+}
 
-    window.addEventListener('appinstalled', () => {
-      console.log('PWA was installed');
-      deferredPrompt = null;
+// Install prompt handling
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  // Show install button or prompt
+  console.log('PWA install prompt is ready');
+});
+
+window.addEventListener('appinstalled', () => {
+  console.log('PWA was installed');
+  deferredPrompt = null;
+});
+
+        
+// ==================== BACKUP INTEGRATION ====================
+// Modify saveToStorage to use BackupManager
+const originalSaveToStorage = saveToStorage;
+saveToStorage = function() {
+  originalSaveToStorage();
+  // Automatically save to IndexedDB and create backup
+  if (backupManager && backupManager.db) {
+    backupManager.saveData(appState).then(() => {
+      console.log('Data backed up to IndexedDB');
+    }).catch(error => {
+      console.warn('Backup failed:', error);
     });
-    
-    // ==================== BACKUP INTEGRATION ====================
-    const originalSaveToStorage = saveToStorage;
-    saveToStorage = function() {
-      originalSaveToStorage();
-      if (typeof backupManager !== 'undefined' && backupManager && backupManager.db) {
-        backupManager.saveData(appState).then(() => {
-          console.log('Data backed up to IndexedDB');
-        }).catch(error => {
-          console.warn('Backup failed:', error);
-        });
-      }
-    };
+  }
+};
 
-    window.addEventListener('load', () => {
-      setTimeout(() => {
-        if (typeof backupManager !== 'undefined' && backupManager && backupManager.db) {
-          backupManager.loadData().then(savedData => {
-            if (savedData) {
-              appState = savedData;
-              console.log('Data loaded from IndexedDB');
-              loadFromStorage();
-            }
-          }).catch(error => {
-            console.warn('Failed to load backup:', error);
-          });
+// Load data from IndexedDB on startup
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    if (backupManager && backupManager.db) {
+      backupManager.loadData().then(savedData => {
+        if (savedData) {
+          appState = savedData;
+          console.log('Data loaded from IndexedDB');
+          updateMainUI();
+          loadFromStorage();
         }
-      }, 500);
-    });
-
-    if (navigator.storage && navigator.storage.persist) {
-      navigator.storage.persist().then(persistent => {
-        console.log('Persistent storage:', persistent ? 'granted' : 'denied');
+      }).catch(error => {
+        console.warn('Failed to load backup:', error);
       });
     }
-    
-    // ==================== CSV IMPORT/EXPORT ====================
-    function exportToCSV() {
-      if (typeof CSVUtilities !== 'undefined') {
-        const csvContent = CSVUtilities.exportToCSV(appState.expenses);
-        const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
-        CSVUtilities.downloadCSV(csvContent, `expenses-${timestamp}.csv`);
-        showToast('✅ Expenses exported to CSV file');
-      } else {
-        const filtered = getFilteredExpenses();
-        let csv = 'Date,Person,Category,Amount,Payment Mode,Note\n';
-        filtered.forEach(exp => {
-            const row = [exp.date, exp.person, exp.category, exp.amount, exp.paymentMode, `"${(exp.note || '').replace(/"/g, '""')}"`].join(',');
-            csv += row + '\n';
-        });
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `expense-tracker-filtered-${new Date().toISOString().split('T')[0]}.csv`;
-        a.click();
-        window.URL.revokeObjectURL(url);
-        showToast('✅ CSV exported successfully!');
-      }
-    }
+  }, 500); // Wait for backup manager to initialize
+});
 
-    function triggerCSVImport() {
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = '.csv';
-      
-      input.onchange = (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
+// Request persistent storage for better longevity
+if (navigator.storage && navigator.storage.persist) {
+  navigator.storage.persist().then(persistent => {
+    console.log('Persistent storage:', persistent ? 'granted' : 'denied');
+  });
+}
         
-        if (typeof CSVUtilities !== 'undefined') {
-          CSVUtilities.importFromFile(file)
-            .then(importedExpenses => {
-              const totalAmount = importedExpenses.reduce((sum, exp) => sum + parseFloat(exp.amount || 0), 0);
-              const confirmation = confirm(
-                `Import ${importedExpenses.length} expenses?\n` +
-                `Total amount: ₹${totalAmount.toFixed(2)}\n\n` +
-                `Choose OK to MERGE with existing data, or Cancel to view details.`
-              );
-              
-              if (confirmation) {
-                appState.expenses = [...appState.expenses, ...importedExpenses];
-                saveToStorage();
-                updateSummaries();
-                updateOverview();
-                switchSection('summaries');
-                showToast(`✅ ${importedExpenses.length} expenses imported successfully!`);
-              } else {
-                showToast('Import cancelled');
-              }
-            })
-            .catch(error => {
-              showToast(`❌ Import failed: ${error.message}`, 'error');
-              console.error('CSV Import Error:', error);
-            });
-        } else {
-          showToast('CSV utility not available', 'error');
-        }
-      };
-      
-      input.click();
-    }
+// ==================== CSV IMPORT/EXPORT ====================
+// Export expenses to CSV
+function exportToCSV() {
+  const csvContent = CSVUtilities.exportToCSV(appState.expenses);
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+  CSVUtilities.downloadCSV(csvContent, `expenses-${timestamp}.csv`);
+  showToast('✅ Expenses exported to CSV file');
+}
 
-    // ==================== CATEGORY TABLE SORTING ====================
-    let categorySortState = { column: 'amount', ascending: false };
+// Import CSV file
+function triggerCSVImport() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.csv';
+  
+  input.onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
     
-    function sortCategoryTable(column) {
-        const tbody = document.getElementById('categoryTableBody');
-        if (!tbody) return;
-        const rows = Array.from(tbody.querySelectorAll('tr'));
+    CSVUtilities.importFromFile(file)
+      .then(importedExpenses => {
+        // Show confirmation dialog
+        const totalAmount = importedExpenses.reduce((sum, exp) => sum + parseFloat(exp.amount || 0), 0);
+        const confirmation = confirm(
+          `Import ${importedExpenses.length} expenses?\n` +
+          `Total amount: ₹${totalAmount.toFixed(2)}\n\n` +
+          `Choose OK to MERGE with existing data, or Cancel to view details.`
+        );
         
-        if (categorySortState.column === column) {
-            categorySortState.ascending = !categorySortState.ascending;
+        if (confirmation) {
+          // Merge with existing
+          appState.expenses = [...appState.expenses, ...importedExpenses];
+          saveToStorage();
+          updateMainUI();
+          switchTab('summary');
+          showToast(`✅ ${importedExpenses.length} expenses imported successfully!`);
         } else {
-            categorySortState.column = column;
-            categorySortState.ascending = true;
+          showToast('Import cancelled');
         }
-        
-        rows.sort((a, b) => {
-            let aVal, bVal;
-            if (column === 'category') {
-                aVal = a.cells[0].textContent.trim();
-                bVal = b.cells[0].textContent.trim();
-                return categorySortState.ascending ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
-            } else if (column === 'amount') {
-                aVal = parseFloat(a.cells[1].textContent.replace(/[^0-9.]/g, ''));
-                bVal = parseFloat(b.cells[1].textContent.replace(/[^0-9.]/g, ''));
-            } else if (column === 'count') {
-                aVal = parseInt(a.cells[2].textContent);
-                bVal = parseInt(b.cells[2].textContent);
-            } else if (column === 'percent') {
-                aVal = parseFloat(a.cells[3].textContent);
-                bVal = parseFloat(b.cells[3].textContent);
-            }
-            return categorySortState.ascending ? aVal - bVal : bVal - aVal;
-        });
-        
-        rows.forEach(row => tbody.appendChild(row));
-        
-        document.querySelectorAll('#categoryTable th').forEach((th, idx) => {
-            const cols = ['category', 'amount', 'count', 'percent'];
-            let headerTexts = ['Category', 'Amount', 'Count', '%'];
-            if (cols[idx] === column) {
-                th.style.backgroundColor = 'rgba(233, 30, 99, 0.1)';
-                th.textContent = headerTexts[idx] + (categorySortState.ascending ? ' ↑' : ' ↓');
-                th.style.cursor = 'pointer';
-            } else {
-                th.textContent = headerTexts[idx];
-                th.style.backgroundColor = 'transparent';
-                th.style.cursor = 'pointer';
-            }
-        });
-    }
-</script>
+      })
+      .catch(error => {
+        showToast(`❌ Import failed: ${error.message}`, 'error');
+        console.error('CSV Import Error:', error);
+      });
+  };
+  
+  input.click();
+}
+
+// Create CSV import button handler
+function setupCSVImport() {
+  const importBtn = document.getElementById('importCSVBtn');
+  if (importBtn) {
+    importBtn.addEventListener('click', triggerCSVImport);
+  }
+}
+
+// Initialize CSV import on page load
+window.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    setupCSVImport();
+  }, 100);
+});
+
+// Also setup when switching to settings
+const originalSwitchTab = switchTab;
+switchTab = function(tabName) {
+  originalSwitchTab(tabName);
+  if (tabName === 'settings') {
+    setupCSVImport();
+  }
+};
+         // ==================== CATEGORY TABLE SORTING ====================
+ let categorySortState = { column: null, ascending: true };
+ function sortCategoryTable(column) {
+   const tbody = document.getElementById('categoryTableBody');
+   if (!tbody) return;
+   const rows = Array.from(tbody.querySelectorAll('tr'));
+   // Toggle sort direction if same column clicked
+   if (categorySortState.column === column) {
+     categorySortState.ascending = !categorySortState.ascending;
+   } else {
+     categorySortState.column = column;
+     categorySortState.ascending = true;
+   }
+   // Sort rows based on column
+   rows.sort((a, b) => {
+     let aVal, bVal;
+     if (column === 'category') {
+       aVal = a.cells[0].textContent.trim();
+       bVal = b.cells[0].textContent.trim();
+       return categorySortState.ascending ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+     } else if (column === 'amount') {
+       aVal = parseFloat(a.cells[1].textContent.replace(/[^0-9.]/g, ''));
+       bVal = parseFloat(b.cells[1].textContent.replace(/[^0-9.]/g, ''));
+     } else if (column === 'count') {
+       aVal = parseInt(a.cells[2].textContent);
+       bVal = parseInt(b.cells[2].textContent);
+     } else if (column === 'percent') {
+       aVal = parseFloat(a.cells[3].textContent);
+       bVal = parseFloat(b.cells[3].textContent);
+     }
+     return categorySortState.ascending ? aVal - bVal : bVal - aVal;
+   });
+   // Re-append sorted rows
+   rows.forEach(row => tbody.appendChild(row));
+   // Update visual indicator for sorted column
+   document.querySelectorAll('#categoryTable th').forEach((th, idx) => {
+     const cols = ['category', 'amount', 'count', 'percent'];
+     if (cols[idx] === column) {
+       th.style.backgroundColor = 'rgba(233, 30, 99, 0.1)';
+       th.style.cursor = 'pointer';
+     } else {
+       th.style.backgroundColor = 'transparent';
+       th.style.cursor = 'pointer';
+     }
+   });
+ }
+    </script>
+</body>
+</html>
